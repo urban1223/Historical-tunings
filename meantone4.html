@@ -247,7 +247,7 @@ let pitchHistory = new Array(2).fill(null);
 let pitchHistIdx = 0;
 let smoothedTarget = 0;
 
-const noteNames = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "G♯", "A", "B♭", "B"];
+let noteNames = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "G♯", "A", "B♭", "B"];
 const mt14Cents = [0, 76.43, 193.53, 310.68, 386.73, 503.88, 579.74, 696.84, 772.63, 889.37, 1006.45, 1082.49];
 
 function init() {
@@ -488,6 +488,24 @@ function draw() {
         (currentNeedleAngle > 0 ? "+" : "") + currentNeedleAngle.toFixed(1) + " ¢";
 
     requestAnimationFrame(draw);
+}
+
+function setEnh(idx, name, cents, activeId, inactiveId) {
+    // Posodobi ime in cent vrednost
+    noteNames[idx] = name;
+    mt14Cents[idx] = cents;
+
+    // Zamenjaj gumba
+    document.getElementById(activeId).classList.add('active');
+    document.getElementById(inactiveId).classList.remove('active');
+
+    // Posodobi tipkovnico
+    renderKeyboard();
+
+    // Posodobi ton če igra
+    if (activeOscs[idx] && audioCtx) {
+        activeOscs[idx].osc.frequency.setTargetAtTime(getFreq(idx), audioCtx.currentTime, 0.03);
+    }
 }
 
 init();
