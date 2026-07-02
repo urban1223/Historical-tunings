@@ -243,6 +243,10 @@ let attackTime = 0;
 let stableFrames = 0;
 let lastValidFreq = -1;
 
+let pitchHistory = new Array(2).fill(null);
+let pitchHistIdx = 0;
+let smoothedTarget = 0;
+
 const noteNames = ["C", "C♯", "D", "E♭", "E", "F", "F♯", "G", "G♯", "A", "B♭", "B"];
 const mt14Cents = [0, 76.43, 193.53, 310.68, 386.73, 503.88, 579.74, 696.84, 772.63, 889.37, 1006.45, 1082.49];
 
@@ -314,17 +318,6 @@ function updateAll() {
     });
 }
 
-function setEnh(idx, name, cents, activeId, inactiveId) {
-    noteNames[idx] = name;
-    mt14Cents[idx] = cents;
-    
-    document.getElementById(activeId).classList.add('active');
-    document.getElementById(inactiveId).classList.remove('active');
-    
-    renderKeyboard();
-    updateAll();
-}
-
 function toggleTone(idx) {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -363,7 +356,7 @@ async function toggleMic() {
         
         lowPassFilter = audioCtx.createBiquadFilter();
         lowPassFilter.type = "lowpass";
-        lowPassFilter.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        lowPassFilter.frequency.setValueAtTime(2500, audioCtx.currentTime);
         
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 8192;
@@ -377,111 +370,109 @@ async function toggleMic() {
 }
 
 function autoCorrelate(buf, sampleRate) {
-    let rms = 0; 
+    let rms = 0;
     for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
     rms = Math.sqrt(rms / buf.length);
-    
-    if (rms < 0.008) {
-        lastRms = rms;
+    lastRms = rms;
+
+    if (rms < 0.006) {
         stableFrames = 0;
         return -1;
     }
-    
-    let isPlucked = (rms > lastRms * 2.0) && (lastRms > 0.005);
-    lastRms = rms;
 
-    if (isPlucked) {
-        attackTime = Date.now();
-        stableFrames = 0;
-        return -2;
-    }
+    // BEZ detekcije pluck/attack — pihala nimajo tranzientnega napada
 
-    if (Date.now() - attackTime < 20) {
-        return -2;
-    }
+    const n = buf.length;
+    const correlations = new Float32Array(n);
 
-    let n = buf.length;
-    let correlations = new Float32Array(n);
-    
     for (let offset = 0; offset < n; offset++) {
         for (let i = 0; i < n - offset; i++) {
             correlations[offset] += buf[i] * buf[i + offset];
         }
     }
-    
-    let d = 0; 
-    while (d < n - 1 && correlations[d] > correlations[d + 1]) d++;
-    
-    let maxV = -1, maxP = -1;
-    for (let i = d; i < n; i++) {
-        if (correlations[i] > maxV) {
-            maxV = correlations[i];
-            maxP = i;
-        }
-    }
-    
-    if (maxP === -1 || maxP === 0 || maxP === n - 1) return -1;
 
+    let d = 0;
+    while (d < n - 1 && correlations[d] > correlations[d + 1]) d++;
+
+    let maxV = -1, maxP = -1;
+    for (let i = d; i < Math.floor(n / 2); i++) {
+        if (correlations[i] > maxV) { maxV = correlations[i]; maxP = i; }
+    }
+
+    if (maxP <= 0 || maxP >= n - 1) return -1;
+
+    // Zahtevaj zadostno zaupanje — odbije šum in aliase harmonikov
+    if (correlations[0] === 0 || maxV / correlations[0] < 0.4) return -1;
+
+    // Parabolična interpolacija za natančnost pod 1 Hz
     let x0 = correlations[maxP - 1];
     let x1 = correlations[maxP];
     let x2 = correlations[maxP + 1];
     let a = (x0 + x2 - 2 * x1) / 2;
     let b = (x2 - x0) / 2;
-    
-    if (a === 0) return sampleRate / maxP;
-    
-    let exactPosition = maxP - b / (2 * a);
-    return sampleRate / exactPosition;
+    let exactPos = (a === 0) ? maxP : maxP - b / (2 * a);
+
+    stableFrames++;
+    return sampleRate / exactPos;
 }
 
 function draw() {
     if (!analyser) return;
-    const buffer = new Float32Array(analyser.fftSize);
-    analyser.getFloatTimeDomainData(buffer);
-    
-    let freq = autoCorrelate(buffer, audioCtx.sampleRate);
-    
-    if (freq !== -1 && freq !== -2 && isFinite(freq)) {
-        const freqs = getNoteFrequencies();
-        let minHz = Infinity;
-
-        for (let i = 0; i < 12; i++) {
-            for (let oct = -3; oct <= 3; oct++) {
-                let target = freqs[i] * Math.pow(2, oct);
-                let diff = Math.abs(freq - target);
-                if (diff < minHz) { 
-                    minHz = diff; 
-                    closestIdx = i; 
-                    targetCents = 1200 * Math.log2(freq / target); 
-                }
-            }
-        }
-        lastValidFreq = freq;
-    }
 
     const now = performance.now();
     const dt = Math.min(2, (now - lastFrameTime) / 16.666);
     lastFrameTime = now;
 
-    let targetVelocity = (targetCents - currentNeedleAngle) * 0.35; 
-    needleVelocity += (targetVelocity - needleVelocity) * 0.60 * dt;    
-    currentNeedleAngle += needleVelocity * dt;                               
+    const buffer = new Float32Array(analyser.fftSize);
+    analyser.getFloatTimeDomainData(buffer);
 
-    if (Math.abs(currentNeedleAngle) < 0.1 && Math.abs(needleVelocity) < 0.02) {
-        currentNeedleAngle = 0;
-        needleVelocity = 0;
+    let freq = autoCorrelate(buffer, audioCtx.sampleRate);
+
+    if (freq > 0 && isFinite(freq)) {
+        const freqs = getNoteFrequencies();
+        let minDiff = Infinity;
+
+        for (let i = 0; i < 12; i++) {
+            for (let oct = -3; oct <= 3; oct++) {
+                let target = freqs[i] * Math.pow(2, oct);
+                let diff = Math.abs(freq - target);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIdx = i;
+                    targetCents = 1200 * Math.log2(freq / target);
+                }
+            }
+        }
+
+        pitchHistory[pitchHistIdx % pitchHistory.length] = targetCents;
+        pitchHistIdx++;
+        let valid = pitchHistory.filter(v => v !== null);
+        if (valid.length > 0) {
+            let sorted = [...valid].sort((a, b) => a - b);
+            targetCents = sorted[Math.floor(sorted.length / 2)];
+        }
+
+        lastValidFreq = freq;
+        document.getElementById('hz-display').textContent = freq.toFixed(2) + " Hz";
+        document.getElementById('note-name').textContent = noteNames[closestIdx];
+
+    } else if (freq === -1) {
+        pitchHistory.fill(null);
+        pitchHistIdx = 0;
     }
-    
+
+    let diff = Math.abs(targetCents - smoothedTarget);
+    let speed = diff > 15 ? 0.35 : 0.10;
+    smoothedTarget += (targetCents - smoothedTarget) * speed * dt;
+    currentNeedleAngle += (smoothedTarget - currentNeedleAngle) * 0.60 * dt;
+
+    if (Math.abs(currentNeedleAngle) < 0.05) currentNeedleAngle = 0;
+
     const needleEl = document.getElementById('needle');
     const noteEl = document.getElementById('note-name');
-    
+
     let displayAngle = Math.max(-50, Math.min(50, currentNeedleAngle));
     needleEl.style.transform = `translateX(-50%) rotate(${displayAngle}deg)`;
-    
-    if (freq !== -1 && freq !== -2) {
-        noteEl.textContent = noteNames[closestIdx];
-        document.getElementById('hz-display').textContent = freq.toFixed(2) + " Hz";
-    }
 
     if (Math.abs(currentNeedleAngle) <= 2.0) {
         noteEl.style.color = "var(--green)";
@@ -493,8 +484,9 @@ function draw() {
         needleEl.style.boxShadow = "0 0 10px var(--amber)";
     }
 
-    document.getElementById('cents-display').textContent = (currentNeedleAngle > 0 ? "+" : "") + currentNeedleAngle.toFixed(1) + " ¢";
-    
+    document.getElementById('cents-display').textContent =
+        (currentNeedleAngle > 0 ? "+" : "") + currentNeedleAngle.toFixed(1) + " ¢";
+
     requestAnimationFrame(draw);
 }
 
