@@ -22,7 +22,7 @@ function initTuner(config) {
     let stableFrames = 0;
     let lastValidFreq = -1;
 
-    let pitchHistory = new Array(2).fill(null);
+    let pitchHistory = new Array(5).fill(null);
     let pitchHistIdx = 0;
     let smoothedTarget = 0;
 
@@ -192,7 +192,7 @@ function initTuner(config) {
 
             lowPassFilter = audioCtx.createBiquadFilter();
             lowPassFilter.type = "lowpass";
-            lowPassFilter.frequency.setValueAtTime(2500, audioCtx.currentTime);
+            lowPassFilter.frequency.setValueAtTime(3500, audioCtx.currentTime);
 
             analyser = audioCtx.createAnalyser();
             analyser.fftSize = 8192;
@@ -211,7 +211,7 @@ function initTuner(config) {
         rms = Math.sqrt(rms / buf.length);
         lastRms = rms;
 
-        if (rms < 0.006) {
+        if (rms < 0.004) {
             stableFrames = 0;
             return -1;
         }
@@ -236,6 +236,17 @@ function initTuner(config) {
         }
 
         if (maxP <= 0 || maxP >= n - 1) return -1;
+
+        // Octave correction — instruments with a strong 2nd harmonic (harpsichord,
+        // oboe, cornetto) can make the algorithm lock onto the harmonic's period
+        // instead of the true fundamental. If the period at double the lag (half
+        // the frequency) is nearly as strong, it is almost certainly the real
+        // fundamental, so prefer it.
+        const fundamentalP = maxP * 2;
+        if (fundamentalP < n - 1 && correlations[fundamentalP] > maxV * 0.90) {
+            maxP = fundamentalP;
+            maxV = correlations[fundamentalP];
+        }
 
         // Require sufficient confidence — rejects noise and harmonic aliases
         if (correlations[0] === 0 || maxV / correlations[0] < 0.4) return -1;
