@@ -211,10 +211,22 @@ input, select { background: #141b29; border: 1px solid #445; color: var(--amber)
     gap: 12px;
 }
 .panel.kb-expanded .key {
-    justify-content: space-between;
+    justify-content: flex-start;
     min-height: clamp(96px, 24vh, 160px);
-    padding: 44px 0 14px;
+    padding: 8px 0;
     font-size: 22px;
+}
+.panel.kb-expanded .key > div:first-child {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.panel.kb-expanded .oct-ctrl {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 500px) {
