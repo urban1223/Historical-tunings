@@ -18,9 +18,20 @@ function initTuner(config) {
 
     // Automation and filtering
     let lowPassFilter = null;
+    let highPassFilter = null;
     let lastRms = 0;
     let stableFrames = 0;
     let lastValidFreq = -1;
+    let noiseFloor = 0.0015;
+    let silenceMs = 0;
+    let idleShown = true;
+
+    // Note-name display hysteresis — requires a few consecutive frames to agree
+    // before switching the big letter, so a pitch hovering near a boundary
+    // between two notes doesn't flicker
+    let displayedIdx = 0;
+    let idxCandidate = 0;
+    let idxAgreeCount = 0;
 
     let pitchHistory = new Array(5).fill(null);
     let pitchHistIdx = 0;
@@ -182,6 +193,7 @@ function initTuner(config) {
         if (analyser) {
             analyser = null;
             if (lowPassFilter) { lowPassFilter.disconnect(); lowPassFilter = null; }
+            if (highPassFilter) { highPassFilter.disconnect(); highPassFilter = null; }
             if (micStream) micStream.getTracks().forEach(t => t.stop());
             els.micBtn.innerText = "TURN ON MIC"; return;
         }
@@ -190,6 +202,13 @@ function initTuner(config) {
             micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const source = audioCtx.createMediaStreamSource(micStream);
 
+            // Highpass first — removes sub-40Hz rumble (handling noise, HVAC,
+            // footsteps) well below the lowest note of any instrument this tuner
+            // targets, before the signal reaches the pitch detector
+            highPassFilter = audioCtx.createBiquadFilter();
+            highPassFilter.type = "highpass";
+            highPassFilter.frequency.setValueAtTime(40, audioCtx.currentTime);
+
             lowPassFilter = audioCtx.createBiquadFilter();
             lowPassFilter.type = "lowpass";
             lowPassFilter.frequency.setValueAtTime(3500, audioCtx.currentTime);
@@ -197,7 +216,8 @@ function initTuner(config) {
             analyser = audioCtx.createAnalyser();
             analyser.fftSize = 8192;
 
-            source.connect(lowPassFilter);
+            source.connect(highPassFilter);
+            highPassFilter.connect(lowPassFilter);
             lowPassFilter.connect(analyser);
 
             els.micBtn.innerText = "TURN OFF MIC";
@@ -211,7 +231,16 @@ function initTuner(config) {
         rms = Math.sqrt(rms / buf.length);
         lastRms = rms;
 
-        if (rms < 0.004) {
+        // Track the room's ambient noise level from quiet frames only, so a
+        // noisy environment (traffic, HVAC, other players in the distance)
+        // needs a proportionally stronger signal, while a quiet room stays
+        // sensitive enough for soft instruments like the clavichord
+        if (rms < noiseFloor * 2.5) {
+            noiseFloor += (rms - noiseFloor) * 0.02;
+        }
+        const gate = Math.max(0.004, noiseFloor * 3.5);
+
+        if (rms < gate) {
             stableFrames = 0;
             return -1;
         }
@@ -276,6 +305,9 @@ function initTuner(config) {
         let freq = autoCorrelate(buffer, audioCtx.sampleRate);
 
         if (freq > 0 && isFinite(freq)) {
+            silenceMs = 0;
+            idleShown = false;
+
             const freqs = getNoteFrequencies();
             let minDiff = Infinity;
 
@@ -299,13 +331,37 @@ function initTuner(config) {
                 targetCents = sorted[Math.floor(sorted.length / 2)];
             }
 
+            // Only switch the displayed letter once the same note has won for a
+            // few consecutive frames — avoids flicker when the pitch hovers near
+            // the boundary between two adjacent notes
+            if (closestIdx === idxCandidate) {
+                idxAgreeCount++;
+            } else {
+                idxCandidate = closestIdx;
+                idxAgreeCount = 1;
+            }
+            if (idxAgreeCount >= 3) displayedIdx = closestIdx;
+
             lastValidFreq = freq;
             els.hz.textContent = freq.toFixed(2) + " Hz";
-            els.note.textContent = noteNames[closestIdx];
+            els.note.textContent = noteNames[displayedIdx];
 
         } else if (freq === -1) {
             pitchHistory.fill(null);
             pitchHistIdx = 0;
+
+            // After a short grace period (breathing between notes, bow changes),
+            // ease the needle back to center and clear the readout so a stale
+            // reading doesn't linger once the player has actually stopped
+            silenceMs += dt * 16.666;
+            if (silenceMs > 700) {
+                targetCents = 0;
+                if (!idleShown) {
+                    els.note.textContent = '--';
+                    els.hz.textContent = '0.00 Hz';
+                    idleShown = true;
+                }
+            }
         }
 
         let diff = Math.abs(targetCents - smoothedTarget);
