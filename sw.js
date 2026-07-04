@@ -1,51 +1,43 @@
-const CACHE_NAME = 'na-tuner-v1';
-const ASSETS = [
-  'index.html',
-  'aron.html',
-  'earlyfrench.html',
-  'just.html',
-  'kirnberger.html',
-  'pytagorean.html',
-  'rameau.html',
-  'rousseau.html',
-  'valotti.html',
-  'violin.html',
-  'werkmeister.html',
-  'meantone4.html',
-  'meantone6.html',
-  'ozadje.jpg'
-];
+const CACHE_NAME = 'na-tuner-v4';
 
-// Shranjevanje datotek v lokalni cache ob namestitvi
+// Installation - activate the new SW immediately
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      // Če kakšna datoteka s seznama še ne obstaja, se namestitev ne bo sesula
-      return Promise.allSettled(
-        ASSETS.map(asset => cache.add(asset))
-      );
-    })
-  );
+  self.skipWaiting();
 });
 
-// Aktivacija in brisanje starih verzij
+// Clean up old caches and take control of all clients
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
-        })
-      );
-    })
+    Promise.all([
+      // Clean up old versions
+      caches.keys().then((keys) => {
+        return Promise.all(
+          keys.map((key) => {
+            if (key !== CACHE_NAME) return caches.delete(key);
+          })
+        );
+      }),
+      // SW takes control of all tabs immediately
+      self.clients.claim()
+    ])
   );
 });
 
-// Mreža ali Cache (Offline delovanje)
+// Network-first, falls back to cache when offline
 self.addEventListener('fetch', (e) => {
+  if (!e.request.url.startsWith(self.location.origin)) return;
+
   e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      return cachedResponse || fetch(e.request);
-    })
+    fetch(e.request, { cache: 'no-store' })
+      .then((response) => {
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseToCache);
+          });
+        }
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
