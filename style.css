@@ -116,7 +116,6 @@ label { font-size: 9px; color: #889; text-transform: uppercase; letter-spacing: 
 input, select { background: #141b29; border: 1px solid #445; color: var(--amber); padding: 8px; border-radius: 5px; text-align: center; width: 100%; font-size: 14px; outline: none; font-weight: bold; box-sizing: border-box; }
 
 .mic-btn { width: 100%; padding: 18px; border-radius: 15px; border: 2px solid var(--amber); background: transparent; color: var(--amber); cursor: pointer; font-weight: bold; margin-bottom: 20px; font-size: 16px; transition: 0.2s; box-sizing: border-box; }
-.mic-btn.active { background: transparent; color: var(--amber); border-color: var(--amber); }
 .refresh-btn { background: var(--amber); color: #000; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 11px; width: 100%; box-sizing: border-box; }
 
 .enharmonic-container {

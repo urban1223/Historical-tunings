@@ -19,9 +19,6 @@ function initTuner(config) {
     // Automation and filtering
     let lowPassFilter = null;
     let highPassFilter = null;
-    let lastRms = 0;
-    let stableFrames = 0;
-    let lastValidFreq = -1;
     let noiseFloor = 0.0015;
     let silenceMs = 0;
     let idleShown = true;
@@ -111,7 +108,7 @@ function initTuner(config) {
     }
 
     function getNoteFrequencies() {
-        const aRef = parseFloat(els.aRef.value) || 415;
+        const aRef = Math.min(560, Math.max(350, parseFloat(els.aRef.value) || 415));
         const aCents = baseCents[9];
         return baseCents.map(cents => aRef * Math.pow(2, (cents - aCents) / 1200));
     }
@@ -197,6 +194,10 @@ function initTuner(config) {
             if (micStream) micStream.getTracks().forEach(t => t.stop());
             els.micBtn.innerText = "TURN ON MIC"; return;
         }
+        if (!window.isSecureContext) {
+            alert("Microphone access requires a secure connection (HTTPS). Please open this page over HTTPS.");
+            return;
+        }
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         try {
             micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -222,14 +223,23 @@ function initTuner(config) {
 
             els.micBtn.innerText = "TURN OFF MIC";
             draw();
-        } catch (e) { alert("Microphone not available."); }
+        } catch (e) {
+            if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                alert("Microphone access was denied. Please allow microphone access in your browser's site settings and try again.");
+            } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+                alert("No microphone was found on this device.");
+            } else if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
+                alert("The microphone is already in use by another application or browser tab.");
+            } else {
+                alert("Microphone not available: " + e.message);
+            }
+        }
     }
 
     function autoCorrelate(buf, sampleRate) {
         let rms = 0;
         for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
         rms = Math.sqrt(rms / buf.length);
-        lastRms = rms;
 
         // Track the room's ambient noise level from quiet frames only, so a
         // noisy environment (traffic, HVAC, other players in the distance)
@@ -241,7 +251,6 @@ function initTuner(config) {
         const gate = Math.max(0.004, noiseFloor * 3.5);
 
         if (rms < gate) {
-            stableFrames = 0;
             return -1;
         }
 
@@ -288,7 +297,6 @@ function initTuner(config) {
         let b = (x2 - x0) / 2;
         let exactPos = (a === 0) ? maxP : maxP - b / (2 * a);
 
-        stableFrames++;
         return sampleRate / exactPos;
     }
 
@@ -342,7 +350,6 @@ function initTuner(config) {
             }
             if (idxAgreeCount >= 3) displayedIdx = closestIdx;
 
-            lastValidFreq = freq;
             els.hz.textContent = freq.toFixed(2) + " Hz";
             els.note.textContent = noteNames[displayedIdx];
 
@@ -354,7 +361,7 @@ function initTuner(config) {
             // ease the needle back to center and clear the readout so a stale
             // reading doesn't linger once the player has actually stopped
             silenceMs += dt * 16.666;
-            if (silenceMs > 700) {
+            if (silenceMs > 10000) {
                 targetCents = 0;
                 if (!idleShown) {
                     els.note.textContent = '--';
