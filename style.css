@@ -1,28 +1,28 @@
 /* ============================================================
-   Historical Tunings — "Engraved instrument"
-   Mobile first. Accidentals are drawn as SVG, never as font
-   glyphs, so ♯/♭ render identically on every device.
+   Historical Tunings
+   Mobile first. Palette taken from nova-akademija.si so the app
+   reads as part of the association's site. Accidentals are drawn
+   as SVG, never as font glyphs, so ♯/♭ render identically on
+   every device.
    ============================================================ */
 
 :root {
-    --paper:        #ece2cf;
-    --paper-lit:    #f6efe0;
-    --paper-deep:   #ddd0b6;
-    --plate:        #e6dac2;
+    --ground:      #0f131a;   /* page, behind the plate */
+    --panel:       #141b29;
+    --well:        #0b0f16;   /* recessed surfaces: gauge, keybed */
 
-    --ink:          #241d13;
-    --ink-soft:     #6d5c42;
-    --ink-faint:    #a4936f;
+    --gold:        #f2cc5a;
+    --gold-deep:   #d4a93a;
 
-    --brass:        #9a7433;
-    --brass-lit:    #c9a24b;
-    --oxblood:      #8c2f23;
-    --verdigris:    #3d6a4f;
+    --text:        #eeece8;
+    --text-soft:   #9aa3b5;
+    --text-faint:  #8b95a8;   /* 5.7:1 on the panel; the 9px labels need the full 4.5:1 */
 
-    --rule:         rgba(36, 29, 19, 0.22);
-    --rule-soft:    rgba(36, 29, 19, 0.10);
+    --green:       #4cdb7a;
 
-    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Times New Roman', serif;
+    --edge:        rgba(242, 204, 90, 0.16);
+    --edge-soft:   rgba(255, 255, 255, 0.07);
+
     --sans:  ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --mono:  ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
 
@@ -39,8 +39,8 @@ html, body {
 }
 
 body {
-    background: #cdbf9f;
-    color: var(--ink);
+    background: var(--ground);
+    color: var(--text);
     font-family: var(--sans);
     -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
@@ -51,19 +51,41 @@ body {
     padding: 0;
 }
 
-/* Paper grain, generated rather than loaded, so it survives offline */
+/* Baroque manuscript behind everything, held still while the page scrolls */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url('ozadje.jpg') center / cover no-repeat;
+    z-index: -2;
+}
+
+/* Warm black rather than the navy ground, so the paper keeps its sepia and the
+   cool plate reads against it */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: #0b0906;
+    opacity: 0.90;
+    z-index: -1;
+}
+
+/* Adds tooth to the flat navy so the large gradients don't band */
 .grain::after {
     content: "";
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.5;
-    mix-blend-mode: multiply;
+    opacity: 0.30;
+    mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
 }
 
-/* ---------- the instrument plate ---------- */
+/* ---------- the plate ---------- */
 
+/* Left translucent so the manuscript ghosts through the panel rather than
+   stopping at its edge */
 .stage {
     position: relative;
     width: 100%;
@@ -71,11 +93,11 @@ body {
     min-width: 0;        /* without this the wide keyboard drags the plate past the viewport */
     min-height: 100vh;
     min-height: 100dvh;
-    background: var(--paper);
+    background: rgba(20, 27, 41, 0.82);
     background-image:
-        radial-gradient(120% 70% at 50% -10%, var(--paper-lit) 0%, transparent 60%),
-        radial-gradient(100% 60% at 50% 110%, var(--paper-deep) 0%, transparent 55%);
-    box-shadow: 0 0 60px rgba(36, 29, 19, 0.35);
+        radial-gradient(120% 70% at 50% -10%, rgba(46, 58, 84, 0.55) 0%, transparent 60%),
+        radial-gradient(100% 60% at 50% 110%, rgba(5, 8, 13, 0.5) 0%, transparent 55%);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.75);
     padding: 26px var(--stage-pad) calc(20px + env(safe-area-inset-bottom));
     padding-top: calc(26px + env(safe-area-inset-top));
     display: flex;
@@ -96,36 +118,33 @@ body {
     font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--text-faint);
     text-decoration: none;
     padding: 6px 8px 6px 0;
 }
-.back:active { color: var(--oxblood); }
+.back:active { color: var(--gold); }
 
 .tuning-name {
-    font-family: var(--serif);
     font-size: clamp(14px, 4.4vw, 19px);
-    font-weight: 400;
+    font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     margin: 2px 0 0;
-    color: var(--ink);
+    color: var(--gold);
     line-height: 1.2;
 }
 
 .tuning-note {
     font-size: 12px;
     line-height: 1.5;
-    color: var(--ink-soft);
+    color: var(--text-soft);
     margin: 8px auto 0;
     max-width: 34ch;
-    font-style: italic;
-    font-family: var(--serif);
 }
 
 .rule {
     height: 1px;
-    background: var(--rule);
+    background: var(--edge-soft);
     position: relative;
 }
 .rule::before {
@@ -135,39 +154,37 @@ body {
     top: -3px;
     width: 7px; height: 7px;
     transform: translateX(-50%) rotate(45deg);
-    background: var(--paper);
-    border: 1px solid var(--rule);
+    background: var(--panel);
+    border: 1px solid var(--edge);
 }
 
 /* ---------- gauge ---------- */
 
 .gauge {
     position: relative;
-    background: var(--plate);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 10px 8px 4px;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.6),
-        inset 0 -1px 0 rgba(36,29,19,0.08);
+    background: var(--well);
+    border: 1px solid var(--edge);
+    border-radius: 16px;
+    padding: 12px 10px 6px;
+    box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.6);
     overflow: hidden;
 }
 .gauge svg { display: block; width: 100%; height: auto; }
 
-.tick        { stroke: var(--ink-soft); stroke-width: 1; }
-.tick.major  { stroke: var(--ink); stroke-width: 1.4; }
-.tick.zero   { stroke: var(--verdigris); stroke-width: 2.2; }
-.tick-label  { fill: var(--ink-soft); font-family: var(--mono); font-size: 9px; text-anchor: middle; }
-.arc         { fill: none; stroke: var(--rule); stroke-width: 1; }
-.arc-centre  { fill: none; stroke: var(--verdigris); stroke-width: 2.5; opacity: 0.30; }
+.tick        { stroke: var(--text-faint); stroke-width: 1; }
+.tick.major  { stroke: var(--text-soft); stroke-width: 1.4; }
+.tick.zero   { stroke: var(--green); stroke-width: 2.2; }
+.tick-label  { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; text-anchor: middle; }
+.arc         { fill: none; stroke: rgba(255, 255, 255, 0.10); stroke-width: 1; }
+.arc-centre  { fill: none; stroke: var(--green); stroke-width: 2.5; opacity: 0.35; }
 
 #needle {
-    fill: var(--oxblood);
+    fill: var(--gold);
     transition: fill 180ms ease;
 }
-#needle.in-tune { fill: var(--verdigris); }
-.pivot     { fill: var(--ink); }
-.pivot-ring { fill: none; stroke: var(--ink); stroke-width: 1; opacity: 0.5; }
+#needle.in-tune { fill: var(--green); }
+.pivot      { fill: var(--text-soft); }
+.pivot-ring { fill: none; stroke: var(--text-soft); stroke-width: 1; opacity: 0.4; }
 
 /* ---------- readout ---------- */
 
@@ -179,24 +196,24 @@ body {
     align-items: center;
     justify-content: center;
     gap: 2px;
-    color: var(--ink);
+    color: var(--gold);
 }
 .note-letter {
-    font-family: var(--serif);
     font-size: 92px;
     line-height: 1;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    letter-spacing: -0.04em;
 }
 .accidental { height: 54px; width: auto; margin-bottom: 9px; }
 .accidental path, .accidental rect { fill: currentColor; }
 
-/* Idle state: an engraved blank, reading as part of the instrument */
+/* Idle state: a dim bar holding the note's place */
 .note-idle {
     width: 78px;
     height: 3px;
-    background: var(--ink-faint);
-    opacity: 0.55;
+    border-radius: 2px;
+    background: var(--text-faint);
+    opacity: 0.5;
 }
 
 .figures {
@@ -209,16 +226,17 @@ body {
 .cents {
     font-family: var(--mono);
     font-size: 26px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: var(--ink);
+    color: var(--gold);
     min-width: 6.5ch;
     text-align: right;
 }
-.cents.in-tune { color: var(--verdigris); }
+.cents.in-tune { color: var(--green); }
 .hz {
     font-family: var(--mono);
     font-size: 12px;
-    color: var(--ink-faint);
+    color: var(--text-faint);
     font-variant-numeric: tabular-nums;
     min-width: 9ch;
     text-align: left;
@@ -234,13 +252,13 @@ body {
     appearance: none;
     width: 100%;
     min-height: 54px;
-    border: 1px solid var(--ink);
-    border-radius: 3px;
+    border: 2px solid var(--gold);
+    border-radius: 14px;
     background: transparent;
-    color: var(--ink);
+    color: var(--gold);
     font-family: var(--sans);
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     cursor: pointer;
@@ -250,14 +268,15 @@ body {
     gap: 10px;
     transition: background 160ms ease, color 160ms ease;
 }
-.mic:active { background: rgba(36,29,19,0.06); }
+.mic:active { background: rgba(242, 204, 90, 0.12); }
 .mic .dot {
     width: 7px; height: 7px; border-radius: 50%;
-    background: var(--ink-faint);
+    background: currentColor;
+    opacity: 0.5;
     flex: none;
 }
-.mic.live { background: var(--ink); color: var(--paper-lit); border-color: var(--ink); }
-.mic.live .dot { background: var(--oxblood); animation: pulse 1.6s ease-in-out infinite; }
+.mic.live { background: var(--gold); color: #141b29; }
+.mic.live .dot { background: #141b29; opacity: 1; animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
 
 /* ---------- controls ---------- */
@@ -272,49 +291,51 @@ body {
     font-size: 9px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--text-faint);
 }
 .field input, .field select {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
     min-height: 44px;
-    background: var(--paper-lit);
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    color: var(--ink);
+    background: var(--well);
+    border: 1px solid var(--edge-soft);
+    border-radius: 10px;
+    color: var(--gold);
     font-family: var(--mono);
     font-size: 15px;
+    font-weight: 700;
     text-align: center;
     padding: 0 8px;
     outline: none;
 }
-.field input:focus, .field select:focus { border-color: var(--brass); }
+.field input:focus, .field select:focus { border-color: var(--gold); }
 .field select {
     font-family: var(--sans);
-    background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
-                      linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+    background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%),
+                      linear-gradient(135deg, var(--gold) 50%, transparent 50%);
     background-position: calc(100% - 16px) 20px, calc(100% - 11px) 20px;
     background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
 }
+.field select option { background: var(--panel); color: var(--text); }
 
 /* ---------- enharmonics ---------- */
 
 .enharmonics { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .enh-pair {
     display: inline-flex;
-    border: 1px solid var(--rule);
-    border-radius: 3px;
+    border: 1px solid var(--edge-soft);
+    border-radius: 10px;
     overflow: hidden;
-    background: var(--paper-lit);
+    background: var(--well);
 }
 .enh-btn {
     -webkit-appearance: none;
     appearance: none;
     border: 0;
     background: transparent;
-    color: var(--ink-soft);
+    color: var(--text-faint);
     min-height: 34px;
     min-width: 36px;
     padding: 0 6px;
@@ -323,11 +344,12 @@ body {
     align-items: center;
     justify-content: center;
     gap: 1px;
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-size: 15px;
+    font-weight: 600;
 }
 .enh-btn .accidental { height: 15px; margin-bottom: 3px; }
-.enh-btn.active { background: var(--ink); color: var(--paper-lit); }
+.enh-btn.active { background: var(--gold); color: #141b29; }
 
 /* ---------- keyboard ---------- */
 
@@ -352,7 +374,7 @@ body {
     font-size: 9px;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--text-faint);
 }
 
 .kb-scroll {
@@ -361,9 +383,9 @@ body {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     border: 0;
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--edge-soft);
     border-radius: 0;
-    background: var(--ink);
+    background: var(--well);
     /* keys stop above the home indicator; the dark keybed continues under it */
     padding-bottom: env(safe-area-inset-bottom);
     /* fade the edges so it reads as continuing past the frame */
@@ -389,41 +411,45 @@ body {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    font-family: var(--serif);
+    font-family: var(--sans);
+    font-weight: 600;
     -webkit-tap-highlight-color: transparent;
 }
 
+/* Held below white so a full octave of them doesn't glare against the dark app */
 .wkey {
     height: 120px;
-    background: linear-gradient(180deg, #fbf6ea 0%, #efe6d2 88%, #ddd0b6 100%);
-    border-right: 1px solid rgba(36,29,19,0.30);
-    color: var(--ink-soft);
+    background: linear-gradient(180deg, #e7e3da 0%, #d5cfc2 88%, #b9b2a2 100%);
+    border-right: 1px solid rgba(11, 15, 22, 0.55);
+    color: #4a4437;
     font-size: 11px;
     padding-bottom: 9px;
 }
 .wkey.playing {
-    background: linear-gradient(180deg, var(--brass-lit) 0%, var(--brass) 100%);
-    color: #2a1f08;
+    background: linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%);
+    color: #241d05;
 }
 
 .bkey {
     height: 75px;
-    background: linear-gradient(180deg, #3a3020 0%, #191308 100%);
-    border-radius: 0 0 2px 2px;
-    color: rgba(236, 226, 207, 0.55);
+    background: linear-gradient(180deg, #1a2132 0%, #05070b 100%);
+    border-radius: 0 0 3px 3px;
+    color: rgba(238, 236, 232, 0.55);
     font-size: 10px;
     padding-bottom: 7px;
     z-index: 2;
-    box-shadow: 0 2px 3px rgba(0,0,0,0.45);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 .bkey.playing {
-    background: linear-gradient(180deg, var(--brass) 0%, #6f5222 100%);
-    color: #f6efe0;
+    background: linear-gradient(180deg, var(--gold-deep) 0%, #8a6c1e 100%);
+    color: #241d05;
 }
 
 .wkey .kb-acc, .bkey .kb-acc { height: 10px; margin-bottom: 1px; }
 .key-label { display: inline-flex; align-items: flex-end; gap: 0.5px; }
-.key-oct { font-family: var(--mono); font-size: 8px; opacity: 0.5; margin-left: 1px; }
+/* Size alone separates the octave digit from the note letter; dimming it far
+   enough to read as secondary would drop it under 4.5:1 */
+.key-oct { font-family: var(--mono); font-size: 8px; opacity: 0.85; margin-left: 1px; }
 
 /* ---------- index / picker ---------- */
 
@@ -431,20 +457,21 @@ body.home .stage { justify-content: flex-start; }
 
 .masthead { text-align: center; padding: 18px 0 6px; }
 .masthead h1 {
-    font-family: var(--serif);
     font-size: 28px;
-    font-weight: 400;
+    font-weight: 800;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     margin: 0;
     line-height: 1.25;
+    color: var(--gold);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
 }
 .masthead p {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 13px;
-    color: var(--ink-soft);
-    margin: 10px 0 0;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin: 12px 0 0;
 }
 
 /* Negative margins cancel the plate's padding so rows and rules reach both
@@ -458,7 +485,7 @@ body.home .stage { justify-content: flex-start; }
     font-size: 9px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    color: var(--gold);
     margin: 16px 0 8px;
     padding-left: var(--stage-pad);
     display: flex;
@@ -469,7 +496,7 @@ body.home .stage { justify-content: flex-start; }
     content: "";
     flex: 1;
     height: 1px;
-    background: var(--rule-soft);
+    background: var(--edge);
 }
 
 .tuning-list { display: flex; flex-direction: column; gap: 1px; }
@@ -477,14 +504,14 @@ body.home .stage { justify-content: flex-start; }
     display: block;
     padding: 14px var(--stage-pad);
     text-decoration: none;
-    color: var(--ink);
-    border-bottom: 1px solid var(--rule-soft);
+    color: var(--text);
+    border-bottom: 1px solid var(--edge-soft);
     min-height: 44px;
 }
-.tuning-link:active { background: rgba(36,29,19,0.10); }
+.tuning-link:active { background: rgba(242, 204, 90, 0.13); }
 .tuning-link .t-name {
-    font-family: var(--serif);
     font-size: 17px;
+    font-weight: 600;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -492,12 +519,12 @@ body.home .stage { justify-content: flex-start; }
 }
 .tuning-link .t-name::after {
     content: "→";
-    color: var(--ink-faint);
+    color: var(--text-faint);
     font-size: 13px;
 }
 .tuning-link .t-note {
     font-size: 11.5px;
-    color: var(--ink-soft);
+    color: var(--text-soft);
     margin-top: 3px;
     line-height: 1.45;
 }
@@ -512,14 +539,14 @@ body.home .stage { justify-content: flex-start; }
 
     .masthead { padding: 26px 0 10px; }
     .masthead h1 { font-size: 36px; }
-    .masthead p { font-size: 15px; }
+    .masthead p { font-size: 12px; }
 
     .stage-head { padding: 0 64px; }
     .tuning-name { font-size: 23px; }
     .tuning-note { font-size: 13.5px; max-width: 56ch; }
 
     /* The dial is 2:1, so left to fill it would be half the plate tall */
-    .gauge { padding: 14px 12px 6px; }
+    .gauge { padding: 16px 14px 8px; }
     .gauge svg { max-width: 440px; margin: 0 auto; }
 
     .note { height: 128px; }
@@ -551,21 +578,21 @@ body.home .stage { justify-content: flex-start; }
                     color 140ms ease, transform 140ms ease, filter 140ms ease;
     }
 
-    .tuning-link:hover { background: rgba(36,29,19,0.06); }
+    .tuning-link:hover { background: rgba(242, 204, 90, 0.08); }
     .tuning-link:hover .t-name::after {
-        color: var(--brass);
+        color: var(--gold);
         transform: translateX(3px);
     }
 
-    .back:hover { color: var(--ink); }
+    .back:hover { color: var(--gold); }
 
-    .mic:not(.live):hover { background: rgba(36,29,19,0.06); }
-    .mic.live:hover { background: #362a1b; }
+    .mic:not(.live):hover { background: rgba(242, 204, 90, 0.12); }
+    .mic.live:hover { background: var(--gold-deep); }
 
-    .field input:hover, .field select:hover { border-color: var(--ink-faint); }
+    .field input:hover, .field select:hover { border-color: var(--text-faint); }
 
-    .enh-btn:not(.active):hover { background: rgba(36,29,19,0.07); color: var(--ink); }
-    .enh-btn.active:hover { background: #362a1b; }
+    .enh-btn:not(.active):hover { background: rgba(242, 204, 90, 0.10); color: var(--text); }
+    .enh-btn.active:hover { background: var(--gold-deep); }
 
     /* filter rather than a second gradient, so the change animates */
     .wkey:not(.playing):hover { filter: brightness(1.06); }
