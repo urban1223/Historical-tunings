@@ -1,7 +1,5 @@
-// Accidentals are drawn, not typed. ♯ and ♭ are missing from many system fonts,
-// which made them fall back to a substituted face with different metrics and
-// weight. As SVG they are identical everywhere and inherit currentColor.
-// Crossbars are heavier than the verticals, as in engraved music type.
+// ♯ and ♭ as artwork rather than font glyphs, so they render identically on
+// every device. They inherit currentColor.
 const ACCIDENTAL_SVG = {
     '♯': '<svg class="{cls}" viewBox="0 0 64 100" aria-hidden="true"><path d="M4 43 L60 30 L60 47 L4 60 Z"/><path d="M4 69 L60 56 L60 73 L4 86 Z"/><rect x="18" y="6" width="5.5" height="88"/><rect x="41" y="1" width="5.5" height="88"/></svg>',
     '♭': '<svg class="{cls}" viewBox="0 0 48 100" aria-hidden="true"><rect x="11" y="1" width="5.5" height="94"/><path d="M16.5 50 C 31 39, 46 49, 42.5 68 C 39 86, 25 92, 16.5 97 Z"/></svg>'
@@ -12,9 +10,8 @@ function withAccidentals(name, cls) {
     return name.replace(/[♯♭]/g, m => ACCIDENTAL_SVG[m].replace('{cls}', cls || 'accidental'));
 }
 
-// The twelve temperaments. Cents are measured from C.
-// Values carried over from the previous version — see TASKS.md task 5, which
-// tracks deriving these from their constructions instead of hard-coding them.
+// The twelve temperaments. Cents are measured from C. TASKS.md task 5 tracks
+// deriving these from their constructions instead of hard-coding them.
 const TUNINGS = [
     {
         slug: 'pythagorean', name: 'Pythagorean', group: 'Ancient',

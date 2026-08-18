@@ -85,8 +85,8 @@ body {
 
 /* ---------- header ---------- */
 
-/* Symmetric inset keeps the title optically centred while leaving room for the
-   back link, so long names like "Just Intonation" can't run underneath it */
+/* Symmetric inset centres the title and leaves room for the back link, so long
+   names like "Just Intonation" can't run underneath it */
 .stage-head { text-align: center; position: relative; padding: 0 46px; }
 
 .back {
@@ -191,8 +191,7 @@ body {
 .accidental { height: 54px; width: auto; margin-bottom: 9px; }
 .accidental path, .accidental rect { fill: currentColor; }
 
-/* Idle: an engraved blank rather than a stray dash, so the empty state reads
-   as part of the instrument instead of a missing value */
+/* Idle state: an engraved blank, reading as part of the instrument */
 .note-idle {
     width: 78px;
     height: 3px;
@@ -227,9 +226,8 @@ body {
 
 /* ---------- mic ---------- */
 
-/* Single auto margin in the column: everything from here down is anchored to the
-   bottom, so spare height becomes one deliberate gap under the readout rather
-   than a random gutter above the keyboard */
+/* The column's only auto margin: everything below is anchored to the bottom,
+   so spare height collects here as one gap instead of scattering */
 .mic {
     margin-top: auto;
     -webkit-appearance: none;

@@ -70,8 +70,7 @@ function buildGauge() {
         const [x2, y2] = polar(major ? R_MAJOR : R_MINOR, deg);
         const cls = c === 0 ? 'tick zero' : (major ? 'tick major' : 'tick');
         svg += `<line class="${cls}" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}"/>`;
-        // No label at zero — the needle rests over that spot, and the green
-        // tick already marks it
+        // No label at zero: the needle rests there and the green tick marks it
         if (major && c !== 0) {
             const [lx, ly] = polar(R_LABEL, deg);
             svg += `<text class="tick-label" x="${lx.toFixed(2)}" y="${(ly + 3).toFixed(2)}">${c > 0 ? '+' + c : c}</text>`;
@@ -125,7 +124,9 @@ const BLACK_AFTER = { 0: 1, 1: 3, 3: 6, 4: 8, 5: 10 };   // white index -> black
 const WK_W = 46, BK_W = 30;
 
 const drones = {};      // "pc:oct" -> { osc, gain, pc, octave }
-let audioCtx = null;
+const VOICE_GAIN = 0.13;    // per held key; six voices peak around 0.6
+let audioCtx = null, droneBus = null;
+let waveNow = null;         // waveform the running voices were built with
 
 function renderKeyboard() {
     const octaves = HIGH_OCTAVE - LOW_OCTAVE + 1;
@@ -161,7 +162,14 @@ function makeKey(pc, octave, x, w, cls) {
 }
 
 function ensureAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        waveNow = els.waveType.value;
+        // Every voice sums here, giving setDroneWave one handle to duck
+        droneBus = audioCtx.createGain();
+        droneBus.gain.value = 1;
+        droneBus.connect(audioCtx.destination);
+    }
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
 }
@@ -177,6 +185,7 @@ function toggleDrone(pc, octave) {
         d.gain.gain.setValueAtTime(d.gain.gain.value, ctx.currentTime);
         d.gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
         d.osc.stop(ctx.currentTime + 0.12);
+        d.osc.onended = () => { d.osc.disconnect(); d.gain.disconnect(); };
         delete drones[id];
         if (key) key.classList.remove('playing');
         return;
@@ -187,8 +196,8 @@ function toggleDrone(pc, octave) {
     osc.type = els.waveType.value;
     osc.frequency.setValueAtTime(freqOf(pc, octave), ctx.currentTime);
     gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + 0.06);
-    osc.connect(gain); gain.connect(ctx.destination);
+    gain.gain.exponentialRampToValueAtTime(VOICE_GAIN, ctx.currentTime + 0.06);
+    osc.connect(gain); gain.connect(droneBus);
     osc.start();
     drones[id] = { osc, gain, pc, octave };
     if (key) key.classList.add('playing');
@@ -196,11 +205,30 @@ function toggleDrone(pc, octave) {
 
 function retuneDrones() {
     if (!audioCtx) return;
-    const wave = els.waveType.value;
     Object.values(drones).forEach(d => {
-        d.osc.type = wave;
         d.osc.frequency.setTargetAtTime(freqOf(d.pc, d.octave), audioCtx.currentTime, 0.03);
     });
+}
+
+// Ducks the bus around the switch: assigning osc.type jumps the waveform
+// mid-cycle, which clicks on every held voice at once.
+function setDroneWave() {
+    if (!audioCtx) return;
+    const wave = els.waveType.value;
+    if (wave === waveNow) return;
+    waveNow = wave;
+
+    const t = audioCtx.currentTime;
+    droneBus.gain.cancelScheduledValues(t);
+    droneBus.gain.setValueAtTime(droneBus.gain.value, t);
+    droneBus.gain.linearRampToValueAtTime(0.0001, t + 0.02);
+
+    setTimeout(() => {
+        Object.values(drones).forEach(d => { d.osc.type = wave; });
+        const t2 = audioCtx.currentTime;
+        droneBus.gain.setValueAtTime(0.0001, t2);
+        droneBus.gain.linearRampToValueAtTime(1, t2 + 0.03);
+    }, 25);
 }
 
 // ---------------------------------------------------------------- detection
@@ -224,16 +252,15 @@ function initDetector(fftSize, sampleRate) {
     peakVals = new Float32Array(64);
 }
 
-// MPM (McLeod Pitch Method). Each lag is normalized by its own energy, which
-// keeps it accurate while a note decays across the window and yields a clarity
-// value in [-1, 1] used as the confidence gate.
+// MPM (McLeod Pitch Method). Normalizing each lag by its own energy holds
+// accuracy while a note decays, and yields the clarity value used as the gate.
 function detectPitch(buf, sampleRate) {
     let rms = 0;
     for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
     rms = Math.sqrt(rms / buf.length);
 
-    // Adapt to the room from quiet frames only. A cheap early-out before the
-    // expensive part; clarity below is the real decision.
+    // Tracks the room from quiet frames only; a cheap early-out before the
+    // expensive part, with clarity below as the real decision.
     if (rms < noiseFloor * 2.5) noiseFloor += (rms - noiseFloor) * 0.02;
     if (rms < Math.max(0.004, noiseFloor * 3.5)) return null;
 
@@ -252,8 +279,8 @@ function detectPitch(buf, sampleRate) {
 
     // Key maxima: highest point in each positively-sloped zero-crossing region.
     let count = 0, t = 0;
-    // Must start at lag 0 so the lobe skipped is the trivial one at zero — from
-    // minLag it could skip the real fundamental's lobe instead.
+    // Starts at lag 0 so the lobe skipped here is the trivial one at zero;
+    // minLag is applied at selection time instead.
     while (t <= maxLag && nsdf[t] > 0) t++;
     while (t <= maxLag && count < peakLags.length) {
         while (t <= maxLag && nsdf[t] <= 0) t++;
@@ -368,9 +395,8 @@ function resetReadout() {
     els.cents.classList.remove('in-tune');
 }
 
-// Median over frequency, not over cents. Cents are relative to whichever note is
-// closest, so averaging them across a note change compares values measured
-// against different references.
+// Filters frequency rather than cents: cents are relative to whichever note is
+// nearest, so a note change would put two different references in the window.
 function medianFreq(f) {
     freqHistory[histIdx % HISTORY] = f;
     histIdx++;
@@ -409,9 +435,8 @@ function loop() {
         const near = nearestNote(freq);
         targetCents = near.cents;
 
-        // Switch the letter only once the same note has won a few frames, so a
-        // pitch sitting on a boundary doesn't flicker. Derived from the same
-        // filtered frequency as the needle, so the two never disagree.
+        // The letter switches only after the same note wins a few frames, so a
+        // pitch sitting on a boundary doesn't flicker.
         const name = noteNames[near.pc];
         if (name === candidateName) agreeCount++;
         else { candidateName = name; agreeCount = 1; }
@@ -420,7 +445,7 @@ function loop() {
             renderNote(name);
         }
 
-        // The measured deviation, not the animated needle position
+        // The measured deviation; the needle lags it by design
         const shown = Math.max(-99.9, Math.min(99.9, targetCents));
         els.cents.textContent = (shown > 0 ? '+' : '') + shown.toFixed(1) + '¢';
         els.hz.textContent = freq.toFixed(2) + ' Hz';
@@ -451,7 +476,7 @@ function loop() {
 // ---------------------------------------------------------------- wiring
 els.micBtn.addEventListener('click', toggleMic);
 els.aRef.addEventListener('input', retuneDrones);
-els.waveType.addEventListener('change', retuneDrones);
+els.waveType.addEventListener('change', setDroneWave);
 
 buildGauge();
 const needleGroup = document.getElementById('needle-group');
