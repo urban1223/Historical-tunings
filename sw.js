@@ -1,8 +1,29 @@
 // Bump to discard every previously cached response
-const CACHE_NAME = 'na-tuner-v6';
+const CACHE_NAME = 'na-tuner-v7';
 
-// Installation - activate the new SW immediately
+// Everything the app needs to open with no network at all
+const SHELL = [
+  './',
+  './index.html',
+  './tuner.html',
+  './style.css',
+  './tuner.js',
+  './tunings.js',
+  './manifest.json',
+  './favicon.ico',
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png'
+];
+
+// Fill the cache up front, bypassing the HTTP cache so a deploy is picked up
 self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(SHELL.map((url) => new Request(url, { cache: 'reload' })))
+    )
+  );
   self.skipWaiting();
 });
 
@@ -26,7 +47,13 @@ self.addEventListener('activate', (e) => {
 
 // Network-first, falls back to cache when offline
 self.addEventListener('fetch', (e) => {
-  if (!e.request.url.startsWith(self.location.origin)) return;
+  if (e.request.method !== 'GET') return;
+
+  const url = new URL(e.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // tuner.html reads ?t=<slug> at runtime, so all twelve share one cache entry
+  const key = url.origin + url.pathname;
 
   e.respondWith(
     fetch(e.request, { cache: 'no-store' })
@@ -34,11 +61,17 @@ self.addEventListener('fetch', (e) => {
         if (response && response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(e.request, responseToCache);
+            cache.put(key, responseToCache);
           });
         }
         return response;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() =>
+        caches.match(key).then((hit) => {
+          if (hit) return hit;
+          // A URL we never shipped: give navigations the picker rather than an error page
+          if (e.request.mode === 'navigate') return caches.match('./index.html');
+        })
+      )
   );
 });
