@@ -496,17 +496,6 @@ body.home .stage { justify-content: flex-start; }
     line-height: 1.45;
 }
 
-.colophon {
-    margin-top: 26px;
-    padding-top: 14px;
-    border-top: 1px solid var(--rule-soft);
-    text-align: center;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-}
-
 /* ---------- narrow phones ---------- */
 
 @media (max-width: 360px) {

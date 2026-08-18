@@ -1,5 +1,5 @@
-// Bumped for the rewrite so caches holding the twelve deleted pages are dropped
-const CACHE_NAME = 'na-tuner-v5';
+// Bump to discard every previously cached response
+const CACHE_NAME = 'na-tuner-v6';
 
 // Installation - activate the new SW immediately
 self.addEventListener('install', (e) => {
