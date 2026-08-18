@@ -447,12 +447,20 @@ body.home .stage { justify-content: flex-start; }
     margin: 10px 0 0;
 }
 
+/* Negative margins cancel the plate's padding so rows and rules reach both
+   edges; each child pads its own text back to the text column */
+#list {
+    margin-left: calc(-1 * var(--stage-pad));
+    margin-right: calc(-1 * var(--stage-pad));
+}
+
 .group-label {
     font-size: 9px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--ink-faint);
     margin: 16px 0 8px;
+    padding-left: var(--stage-pad);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -467,13 +475,13 @@ body.home .stage { justify-content: flex-start; }
 .tuning-list { display: flex; flex-direction: column; gap: 1px; }
 .tuning-link {
     display: block;
-    padding: 14px 2px;
+    padding: 14px var(--stage-pad);
     text-decoration: none;
     color: var(--ink);
     border-bottom: 1px solid var(--rule-soft);
     min-height: 44px;
 }
-.tuning-link:active { background: rgba(36,29,19,0.05); }
+.tuning-link:active { background: rgba(36,29,19,0.10); }
 .tuning-link .t-name {
     font-family: var(--serif);
     font-size: 17px;
@@ -492,6 +500,77 @@ body.home .stage { justify-content: flex-start; }
     color: var(--ink-soft);
     margin-top: 3px;
     line-height: 1.45;
+}
+
+/* ---------- laptops and up ---------- */
+
+/* The plate widens and the display type grows with it, so the extra room reads
+   as a larger instrument rather than the phone layout stretched */
+@media (min-width: 700px) {
+    :root { --stage-pad: 30px; --gap: 16px; }
+    .stage { max-width: 690px; }
+
+    .masthead { padding: 26px 0 10px; }
+    .masthead h1 { font-size: 36px; }
+    .masthead p { font-size: 15px; }
+
+    .stage-head { padding: 0 64px; }
+    .tuning-name { font-size: 23px; }
+    .tuning-note { font-size: 13.5px; max-width: 56ch; }
+
+    /* The dial is 2:1, so left to fill it would be half the plate tall */
+    .gauge { padding: 14px 12px 6px; }
+    .gauge svg { max-width: 440px; margin: 0 auto; }
+
+    .note { height: 128px; }
+    .note-letter { font-size: 124px; }
+    .accidental { height: 72px; margin-bottom: 12px; }
+    .note-idle { width: 104px; height: 4px; }
+    .cents { font-size: 32px; }
+    .hz { font-size: 14px; }
+
+    .mic { min-height: 60px; font-size: 13px; }
+    .controls { gap: 18px; }
+
+    .group-label { font-size: 10px; margin: 22px 0 10px; }
+    .tuning-link { padding: 17px var(--stage-pad); }
+    .tuning-link .t-name { font-size: 19px; }
+    .tuning-link .t-note { font-size: 12.5px; }
+}
+
+/* ---------- pointer devices ---------- */
+
+/* Gated on a real pointer: on a touchscreen :hover latches after a tap and
+   leaves the control lit until you touch something else. */
+@media (hover: hover) and (pointer: fine) {
+
+    .tuning-link, .tuning-link .t-name::after,
+    .back, .field input, .field select,
+    .enh-btn, .wkey, .bkey {
+        transition: background-color 140ms ease, border-color 140ms ease,
+                    color 140ms ease, transform 140ms ease, filter 140ms ease;
+    }
+
+    .tuning-link:hover { background: rgba(36,29,19,0.06); }
+    .tuning-link:hover .t-name::after {
+        color: var(--brass);
+        transform: translateX(3px);
+    }
+
+    .back:hover { color: var(--ink); }
+
+    .mic:not(.live):hover { background: rgba(36,29,19,0.06); }
+    .mic.live:hover { background: #362a1b; }
+
+    .field input:hover, .field select:hover { border-color: var(--ink-faint); }
+
+    .enh-btn:not(.active):hover { background: rgba(36,29,19,0.07); color: var(--ink); }
+    .enh-btn.active:hover { background: #362a1b; }
+
+    /* filter rather than a second gradient, so the change animates */
+    .wkey:not(.playing):hover { filter: brightness(1.06); }
+    .bkey:not(.playing):hover { filter: brightness(1.5); }
+    .wkey.playing:hover, .bkey.playing:hover { filter: brightness(1.07); }
 }
 
 /* ---------- narrow phones ---------- */
