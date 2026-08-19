@@ -18,7 +18,7 @@
     --text-soft:   #9aa3b5;
     --text-faint:  #8b95a8;   /* 5.7:1 on the panel; the 9px labels need the full 4.5:1 */
 
-    --green:       #4cdb7a;
+    --green:       #68c79b;   /* verdigris; sits between the navy and the gold rather than beside them */
 
     --edge:        rgba(242, 204, 90, 0.16);
     --edge-soft:   rgba(255, 255, 255, 0.07);
@@ -109,23 +109,34 @@ body::after {
 
 /* Symmetric inset centres the title and leaves room for the back link, so long
    names like "Just Intonation" can't run underneath it */
-.stage-head { text-align: center; position: relative; padding: 0 46px; }
+.stage-head {
+    text-align: center;
+    position: relative;
+    padding: 0 46px;
+    --title-size: clamp(14px, 4.4vw, 19px);
+}
 
+/* Centred on the title's line box, so it tracks the title as that scales with
+   the viewport. min-height carries the tap target without shifting the centre. */
 .back {
     position: absolute;
     left: 0;
-    top: 4px;
+    top: calc(2px + var(--title-size) * 0.6);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-right: 12px;
     font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-faint);
     text-decoration: none;
-    padding: 6px 8px 6px 0;
 }
 .back:active { color: var(--gold); }
 
 .tuning-name {
-    font-size: clamp(14px, 4.4vw, 19px);
+    font-size: var(--title-size);
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -188,23 +199,39 @@ body::after {
 
 /* ---------- readout ---------- */
 
-.readout { text-align: center; }
+/* The side columns are equal by definition, so the note stays dead centre
+   however wide the accidental or the cents figure gets */
+.readout {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: baseline;
+}
 
 .note {
+    --note-size: 92px;
+    grid-column: 2;
     height: 92px;                /* fixed: keeps layout still across ♯/♭/idle */
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2px;
     color: var(--gold);
 }
+
+/* Clipped to nothing, but it holds the row's baseline, so the cents figure
+   stays put when the note goes idle and has no text of its own */
+.note::before {
+    content: "\200B";
+    font-size: var(--note-size);
+    line-height: 1;
+}
+
 .note-letter {
-    font-size: 92px;
+    font-size: var(--note-size);
     line-height: 1;
     font-weight: 800;
     letter-spacing: -0.04em;
 }
-.accidental { height: 54px; width: auto; margin-bottom: 9px; }
+.accidental { height: 54px; width: auto; margin-bottom: 9px; margin-left: 2px; }
 .accidental path, .accidental rect { fill: currentColor; }
 
 /* Idle state: a dim bar holding the note's place */
@@ -216,31 +243,18 @@ body::after {
     opacity: 0.5;
 }
 
-.figures {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 2px;
-}
 .cents {
+    grid-column: 3;
+    justify-self: start;
+    padding-left: 14px;
     font-family: var(--mono);
     font-size: 26px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     color: var(--gold);
-    min-width: 6.5ch;
-    text-align: right;
-}
-.cents.in-tune { color: var(--green); }
-.hz {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text-faint);
-    font-variant-numeric: tabular-nums;
-    min-width: 9ch;
     text-align: left;
 }
+.cents.in-tune { color: var(--green); }
 
 /* ---------- mic ---------- */
 
@@ -355,7 +369,13 @@ body::after {
 
 /* Full-bleed: the negative side margins cancel the plate's padding, and the
    negative bottom margin lets the keybed run into the safe-area strip below */
+/* Takes the column's leftover height up to the cap; whatever is left over past
+   that still collects at the mic's auto margin */
 .keyboard-wrap {
+    flex: 1 0 auto;
+    max-height: 250px;
+    display: flex;
+    flex-direction: column;
     margin-left: calc(-1 * var(--stage-pad));
     margin-right: calc(-1 * var(--stage-pad));
     margin-bottom: calc(-20px - env(safe-area-inset-bottom));
@@ -364,9 +384,6 @@ body::after {
 }
 
 .kb-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
     margin-bottom: 7px;
     padding: 0 var(--stage-pad);
 }
@@ -378,6 +395,8 @@ body::after {
 }
 
 .kb-scroll {
+    flex: 1;
+    min-height: 121px;   /* border box: the 1px top border is inside it */
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
@@ -396,7 +415,7 @@ body::after {
 
 .keyboard {
     position: relative;
-    height: 120px;
+    height: 100%;
     display: block;
 }
 
@@ -418,7 +437,7 @@ body::after {
 
 /* Held below white so a full octave of them doesn't glare against the dark app */
 .wkey {
-    height: 120px;
+    height: 100%;
     background: linear-gradient(180deg, #e7e3da 0%, #d5cfc2 88%, #b9b2a2 100%);
     border-right: 1px solid rgba(11, 15, 22, 0.55);
     color: #4a4437;
@@ -431,7 +450,7 @@ body::after {
 }
 
 .bkey {
-    height: 75px;
+    height: 62.5%;
     background: linear-gradient(180deg, #1a2132 0%, #05070b 100%);
     border-radius: 0 0 3px 3px;
     color: rgba(238, 236, 232, 0.55);
@@ -541,20 +560,17 @@ body.home .stage { justify-content: flex-start; }
     .masthead h1 { font-size: 36px; }
     .masthead p { font-size: 12px; }
 
-    .stage-head { padding: 0 64px; }
-    .tuning-name { font-size: 23px; }
+    .stage-head { padding: 0 64px; --title-size: 23px; }
     .tuning-note { font-size: 13.5px; max-width: 56ch; }
 
     /* The dial is 2:1, so left to fill it would be half the plate tall */
     .gauge { padding: 16px 14px 8px; }
     .gauge svg { max-width: 440px; margin: 0 auto; }
 
-    .note { height: 128px; }
-    .note-letter { font-size: 124px; }
+    .note { height: 128px; --note-size: 124px; }
     .accidental { height: 72px; margin-bottom: 12px; }
     .note-idle { width: 104px; height: 4px; }
     .cents { font-size: 32px; }
-    .hz { font-size: 14px; }
 
     .mic { min-height: 60px; font-size: 13px; }
     .controls { gap: 18px; }
@@ -606,16 +622,37 @@ body.home .stage { justify-content: flex-start; }
     :root { --stage-pad: 14px; }
     /* bottom stays 20px so the keyboard's negative margin still cancels exactly */
     .stage { padding: 20px var(--stage-pad) calc(20px + env(safe-area-inset-bottom)); }
-    .note-letter { font-size: 76px; }
     .accidental { height: 52px; }
-    .note { height: 88px; }
-    .tuning-name { font-size: 16px; letter-spacing: 0.22em; }
+    .note { height: 88px; --note-size: 76px; }
+    .stage-head { --title-size: 16px; }
+    .tuning-name { letter-spacing: 0.22em; }
+}
+
+/* Wide but short, which most laptops are: the desktop scale-up above doesn't
+   fit in the height, so pull the dial and the note back toward phone size */
+@media (min-width: 700px) and (max-height: 860px) {
+    .note { height: 96px; --note-size: 92px; }
+    .accidental { height: 54px; margin-bottom: 9px; }
+    .cents { font-size: 26px; }
+    .gauge svg { max-width: 380px; }
+}
+
+/* Narrow windows far taller than any phone: stop stretching the plate and
+   centre it, rather than letting the extra height open up as dead space.
+   Width-gated, because the desktop layout fills its height on its own. */
+@media (max-width: 699px) and (min-height: 880px) {
+    body { align-items: center; }
+    .stage {
+        min-height: 0;
+        height: 860px;
+        border-radius: 20px;
+        overflow: hidden;
+    }
 }
 
 /* Short screens: give the keyboard room by trimming the prose */
 @media (max-height: 700px) {
     .tuning-note { display: none; }
-    .note { height: 88px; }
-    .note-letter { font-size: 76px; }
+    .note { height: 88px; --note-size: 76px; }
     .accidental { height: 52px; }
 }

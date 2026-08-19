@@ -19,7 +19,6 @@ const els = {
     gauge: document.getElementById('gauge'),
     note: document.getElementById('note'),
     cents: document.getElementById('cents'),
-    hz: document.getElementById('hz'),
     micBtn: document.getElementById('mic-btn'),
     micLabel: document.getElementById('mic-label'),
     aRef: document.getElementById('a-ref'),
@@ -340,7 +339,13 @@ async function toggleMic() {
     }
     const ctx = ensureAudio();
     try {
-        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micStream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: false,
+                autoGainControl: false,
+                noiseSuppression: false
+            }
+        });
         const source = ctx.createMediaStreamSource(micStream);
 
         highPass = ctx.createBiquadFilter();
@@ -391,7 +396,6 @@ function resetReadout() {
     idle = true;
     renderNote(null);
     els.cents.textContent = '—';
-    els.hz.textContent = '— Hz';
     els.cents.classList.remove('in-tune');
 }
 
@@ -448,7 +452,6 @@ function loop() {
         // The measured deviation; the needle lags it by design
         const shown = Math.max(-99.9, Math.min(99.9, targetCents));
         els.cents.textContent = (shown > 0 ? '+' : '') + shown.toFixed(1) + '¢';
-        els.hz.textContent = freq.toFixed(2) + ' Hz';
         els.cents.classList.toggle('in-tune', Math.abs(targetCents) <= 2);
     } else {
         freqHistory.fill(null); histIdx = 0;
