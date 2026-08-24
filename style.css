@@ -153,6 +153,41 @@ body::after {
     max-width: 34ch;
 }
 
+/* Mirrors .back so the title stays centred between the two */
+.info-btn {
+    position: absolute;
+    right: 0;
+    top: calc(2px + var(--title-size) * 0.6);
+    transform: translateY(-50%);
+    width: 26px; height: 26px;
+    margin-right: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--edge);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-faint);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+}
+.info-btn:active { color: var(--gold); border-color: var(--gold); }
+.info-btn[hidden] { display: none; }
+
+/* The 26px circle is the mark; this carries the tap target around it */
+.info-btn::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 44px; height: 44px;
+    transform: translate(-50%, -50%);
+}
+
 .rule {
     height: 1px;
     background: var(--edge-soft);
@@ -548,6 +583,152 @@ body.home .stage { justify-content: flex-start; }
     line-height: 1.45;
 }
 
+/* ---------- info sheet ---------- */
+
+/* Fixed rather than absolute: the tall-window rule clips .stage */
+.sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgba(6, 9, 14, 0.72);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 24px 0 0;
+}
+.sheet[hidden] { display: none; }
+/* On html, not body: body already carries overflow-x, which stops its own
+   overflow propagating to the viewport, so a lock set there does nothing */
+html.sheet-open { overflow: hidden; }
+
+.sheet-plate {
+    width: 100%;
+    max-width: 460px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* Outside .sheet-body, the only scroller, so it holds the title and the close
+   button still while the panel scrolls under them */
+.sheet-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px var(--stage-pad) 12px;
+    border-bottom: 1px solid var(--edge-soft);
+    background: var(--panel);
+    border-radius: 16px 16px 0 0;
+}
+
+.sheet-title {
+    flex: 1;
+    margin: 0;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.sheet-close {
+    flex: none;
+    width: 32px; height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--edge);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-soft);
+    font-size: 13px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+}
+.sheet-close:active { color: var(--gold); border-color: var(--gold); }
+
+.sheet-body {
+    outline-offset: -2px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 4px var(--stage-pad) calc(20px + env(safe-area-inset-bottom));
+}
+
+.sheet-p {
+    font-size: 13px;
+    line-height: 1.62;
+    color: var(--text-soft);
+    margin: 14px 0 0;
+}
+
+.sheet-h {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 26px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--edge-soft);
+}
+
+.sheet-note {
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--text-faint);
+    margin: 10px 0 0;
+}
+
+.sheet-src {
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--text-faint);
+    margin: 26px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--edge-soft);
+}
+
+.sheet-table { font-family: var(--mono); font-size: 11.5px; }
+
+/* Tracks in rem, not em: the header row is set smaller than the body rows, and
+   em would resolve against each row's own size and misalign the two */
+.sheet-row {
+    display: grid;
+    grid-template-columns: 3.3rem 3rem 1fr 2.3rem;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text);
+}
+.sheet-row:last-child { border-bottom: none; }
+
+.sheet-row.head {
+    font-family: var(--sans);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    border-bottom-color: var(--edge-soft);
+}
+
+.sheet-row .num { text-align: right; color: var(--text-soft); }
+.sheet-row.head span:nth-child(2), .sheet-row.head span:nth-child(4) { text-align: right; }
+.sheet-row .tag { font-family: var(--sans); font-size: 10.5px; color: var(--text-faint); }
+.sheet-row.closing { color: var(--gold); }
+.sheet-row.closing .num, .sheet-row.closing .tag { color: var(--gold-deep); }
+
+.sheet-acc { height: 0.82em; width: auto; vertical-align: -0.02em; margin-left: 1px; }
+.sheet-acc path, .sheet-acc rect { fill: currentColor; }
+
 /* ---------- laptops and up ---------- */
 
 /* The plate widens and the display type grows with it, so the extra room reads
@@ -601,6 +782,7 @@ body.home .stage { justify-content: flex-start; }
     }
 
     .back:hover { color: var(--gold); }
+    .info-btn:hover, .sheet-close:hover { color: var(--gold); border-color: var(--gold); }
 
     .mic:not(.live):hover { background: rgba(242, 204, 90, 0.12); }
     .mic.live:hover { background: var(--gold-deep); }

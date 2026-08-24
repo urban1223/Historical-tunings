@@ -8,7 +8,7 @@ const slug = new URLSearchParams(location.search).get('t');
 const tuning = TUNING_BY_SLUG[slug] || TUNINGS[0];
 
 const baseCents = tuning.cents.slice();
-const noteNames = tuning.noteNames.slice();
+const noteNames = NOTE_NAMES.slice();
 const enharmonicConfig = (tuning.enharmonic || []).map(g => ({
     idx: g.idx, options: g.options.map(o => ({ ...o }))
 }));
@@ -25,7 +25,12 @@ const els = {
     waveType: document.getElementById('wave-type'),
     enharmonics: document.getElementById('enharmonics'),
     kb: document.getElementById('kb'),
-    kbScroll: document.getElementById('kb-scroll')
+    kbScroll: document.getElementById('kb-scroll'),
+    infoBtn: document.getElementById('info-btn'),
+    sheet: document.getElementById('sheet'),
+    sheetTitle: document.getElementById('sheet-title'),
+    sheetBody: document.getElementById('sheet-body'),
+    sheetClose: document.getElementById('sheet-close')
 };
 
 document.title = tuning.name + ' — Historical Tunings';
@@ -408,15 +413,16 @@ function medianFreq(f) {
     return valid[Math.floor(valid.length / 2)];
 }
 
+// Which octave the note falls in doesn't matter to the readout, so the pitch is
+// folded into one octave and matched against the table there.
 function nearestNote(freq) {
-    const a = refA();
+    const above = 1200 * Math.log2(freq / refA()) + baseCents[9];
     let best = null;
     for (let pc = 0; pc < 12; pc++) {
-        for (let oct = LOW_OCTAVE - 1; oct <= HIGH_OCTAVE + 1; oct++) {
-            const target = a * Math.pow(2, (baseCents[pc] - baseCents[9]) / 1200 + (oct - REF_OCTAVE));
-            const cents = 1200 * Math.log2(freq / target);
-            if (!best || Math.abs(cents) < Math.abs(best.cents)) best = { pc, oct, cents };
-        }
+        let cents = (above - baseCents[pc]) % 1200;
+        if (cents > 600) cents -= 1200;
+        else if (cents < -600) cents += 1200;
+        if (!best || Math.abs(cents) < Math.abs(best.cents)) best = { pc, cents };
     }
     return best;
 }
@@ -476,11 +482,150 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
+// ---------------------------------------------------------------- info sheet
+// Every figure below is read off the temperament's own table, so the panel
+// cannot drift from what the tuner is playing.
+const PURE_THIRD = centsOf(5 / 4);
+const CHAIN_POS = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];   // E♭ up to G♯
+
+// The panel prints one decimal, so whatever rounds to zero is reported as zero.
+// Tying the test to the display stops it printing +0.0¢ and withholding "pure".
+const isZero = v => Math.round(v * 10) === 0;
+
+// Naming the comma claims the temperament was built that way, so it needs a far
+// tighter fit: at one decimal an accidental 5.391 and a real 5.377 both read 5.4.
+const EXACT = 0.005;
+
+// Named amounts a fifth may be tempered by, so the table can say how the
+// temperament was built and not only by how much.
+const COMMA_NAMES = [
+    [SYNTONIC_COMMA / 4,    '¼ synt. comma'],
+    [SYNTONIC_COMMA / 6,    '⅙ synt. comma'],
+    [PYTHAGOREAN_COMMA / 4, '¼ Pyth. comma'],
+    [PYTHAGOREAN_COMMA / 6, '⅙ Pyth. comma'],
+    [SCHISMA,               'schisma'],
+    [SYNTONIC_COMMA,        'synt. comma'],
+    [PYTHAGOREAN_COMMA,     'Pyth. comma']
+];
+
+// The octave a harpsichord tuner lays the bearings in, holding every beat rate
+// in the range where they are slow enough to count
+const bearingOctave = pc => (pc >= 5 ? 3 : 4);
+
+// Deliberately not freqOf(): that follows the enharmonic buttons, and the chain
+// is only a chain in the spelling E♭…G♯.
+function tableFreq(pc, octave) {
+    return refA() * Math.pow(2, (tuning.cents[pc] - tuning.cents[9]) / 1200 + (octave - REF_OCTAVE));
+}
+
+function fifthRows() {
+    return CHAIN_POS.map((pos, i) => {
+        const loPc = pitchClass(pos);
+        const hiPc = pitchClass(i === 11 ? -3 : CHAIN_POS[i + 1]);
+        let span = tuning.cents[hiPc] - tuning.cents[loPc];
+        while (span < 550) span += 1200;
+        while (span > 850) span -= 1200;
+        const lo = tableFreq(loPc, bearingOctave(loPc));
+        const hi = lo * Math.pow(2, span / 1200);
+        return {
+            name: NOTE_NAMES[loPc] + '–' + NOTE_NAMES[hiPc],
+            off: span - PURE_FIFTH,
+            beats: Math.abs(3 * lo - 2 * hi),
+            closing: i === 11
+        };
+    });
+}
+
+function thirdRows() {
+    return CHAIN_POS.map(pos => {
+        const rootPc = pitchClass(pos), topPc = (rootPc + 4) % 12;
+        let span = tuning.cents[topPc] - tuning.cents[rootPc];
+        if (span < 0) span += 1200;
+        return { name: NOTE_NAMES[rootPc] + '–' + NOTE_NAMES[topPc], off: span - PURE_THIRD };
+    });
+}
+
+function describeFifth(off) {
+    if (isZero(off)) return 'pure';
+    const dir = off < 0 ? 'narrow' : 'wide';
+    const named = COMMA_NAMES.find(c => Math.abs(Math.abs(off) - c[0]) < EXACT);
+    return named ? named[1] + ' ' + dir : dir;
+}
+
+const signed = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+
+function sheetTable(head, rows) {
+    return '<div class="sheet-table">' +
+        '<div class="sheet-row head">' + head.map(h => '<span>' + h + '</span>').join('') + '</div>' +
+        rows.join('') + '</div>';
+}
+
+function renderSheet() {
+    const acc = s => withAccidentals(s, 'sheet-acc');
+    let h = tuning.about.map(p => '<p class="sheet-p">' + acc(p) + '</p>').join('');
+
+    h += '<h3 class="sheet-h">The chain of fifths</h3>';
+    h += sheetTable(['Fifth', 'Off pure', 'Tempered by', 'Beats'], fifthRows().map(r =>
+        '<div class="sheet-row' + (r.closing ? ' closing' : '') + '">' +
+        '<span>' + acc(r.name) + '</span>' +
+        '<span class="num">' + (isZero(r.off) ? '—' : signed(r.off) + '¢') + '</span>' +
+        '<span class="tag">' + describeFifth(r.off) + '</span>' +
+        '<span class="num">' + (r.beats < 0.05 ? '—' : r.beats.toFixed(1)) + '</span></div>'));
+    h += '<p class="sheet-note">The last row closes the circle and is whatever the other eleven leave behind. ' +
+         'Beats are per second, for the lower note taken in the octave F3–E4, at the reference A set ' +
+         'below; a pure fifth does not beat. Taken as a fourth instead, an octave higher, the same ' +
+         'fifth beats exactly twice as fast.</p>';
+
+    h += '<h3 class="sheet-h">Major thirds</h3>';
+    h += sheetTable(['Third', 'Off pure', '', ''], thirdRows().map(r =>
+        '<div class="sheet-row"><span>' + acc(r.name) + '</span>' +
+        '<span class="num">' + (isZero(r.off) ? '—' : signed(r.off) + '¢') + '</span>' +
+        '<span class="tag">' + (isZero(r.off) ? 'pure' : '') + '</span>' +
+        '<span></span></div>'));
+    h += '<p class="sheet-note">Roots run in chain order, from the flat end of the chain to the sharp end. ' +
+         'A pure major third is 386.31¢.</p>';
+
+    if (tuning.source) h += '<p class="sheet-src">' + tuning.source + '</p>';
+    els.sheetBody.innerHTML = h;
+}
+
+// The page is pinned while the sheet is up: a flick past the end of the panel
+// would otherwise scroll the tuner underneath it
+function openSheet() {
+    renderSheet();
+    els.sheet.hidden = false;
+    document.documentElement.classList.add('sheet-open');
+    els.sheetClose.focus();
+}
+function closeSheet() {
+    els.sheet.hidden = true;
+    document.documentElement.classList.remove('sheet-open');
+    els.infoBtn.focus();
+}
+
 // ---------------------------------------------------------------- wiring
 els.micBtn.addEventListener('click', toggleMic);
 els.aRef.addEventListener('input', retuneDrones);
+// A temperament with nothing sourced to say gets no button at all
+if (tuning.about) els.infoBtn.addEventListener('click', openSheet);
+else els.infoBtn.hidden = true;
+els.sheetClose.addEventListener('click', closeSheet);
+els.sheet.addEventListener('click', e => { if (e.target === els.sheet) closeSheet(); });
+
+// The tuner stays in the tab order behind the backdrop, so Tab is confined to
+// the sheet's own two stops rather than walking into controls nobody can see
+document.addEventListener('keydown', e => {
+    if (els.sheet.hidden) return;
+    if (e.key === 'Escape') return closeSheet();
+    if (e.key !== 'Tab') return;
+    const stops = [els.sheetClose, els.sheetBody];
+    const at = stops.indexOf(document.activeElement);
+    e.preventDefault();
+    stops[(at + (e.shiftKey ? -1 : 1) + stops.length) % stops.length].focus();
+});
 els.waveType.addEventListener('change', setDroneWave);
 
+els.sheetTitle.innerHTML = withAccidentals(tuning.name);
 buildGauge();
 const needleGroup = document.getElementById('needle-group');
 const needlePath = document.getElementById('needle');

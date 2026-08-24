@@ -19,6 +19,7 @@
 
     <header class="stage-head">
         <a class="back" href="index.html">← All</a>
+        <button class="info-btn" id="info-btn" type="button" aria-label="About this temperament">i</button>
         <h1 class="tuning-name" id="tuning-name">—</h1>
         <p class="tuning-note" id="tuning-note"></p>
     </header>
@@ -63,6 +64,16 @@
     </section>
 
 </main>
+
+<div class="sheet" id="sheet" hidden>
+    <div class="sheet-plate" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+        <header class="sheet-head">
+            <h2 class="sheet-title" id="sheet-title">—</h2>
+            <button class="sheet-close" id="sheet-close" type="button" aria-label="Close">✕</button>
+        </header>
+        <div class="sheet-body" id="sheet-body" tabindex="0"></div>
+    </div>
+</div>
 
 <script src="tunings.js"></script>
 <script src="tuner.js"></script>

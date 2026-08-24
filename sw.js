@@ -1,5 +1,5 @@
 // Bump to discard every previously cached response
-const CACHE_NAME = 'na-tuner-v8';
+const CACHE_NAME = 'na-tuner-v10';
 
 // Everything the app needs to open with no network at all
 const SHELL = [
