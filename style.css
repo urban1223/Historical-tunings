@@ -729,6 +729,89 @@ html.sheet-open { overflow: hidden; }
 .sheet-acc { height: 0.82em; width: auto; vertical-align: -0.02em; margin-left: 1px; }
 .sheet-acc path, .sheet-acc rect { fill: currentColor; }
 
+/* ---------- about ---------- */
+
+/* Borrows the sheet's prose classes, so the page reads as the same kind of
+   document as a temperament's information panel */
+.about { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.about p a { color: var(--text-soft); text-decoration: none; border-bottom: 1px solid var(--edge); }
+.about em { color: var(--text); font-style: italic; }
+
+.credits {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+/* Quieter than a link in prose, so the one name that carries one doesn't
+   outweigh the other three */
+.credits a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--edge-soft); }
+
+/* Carries the picker's arrow, so a row that opens another page reads the same
+   here as it does on the list of temperaments */
+.doc-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    min-height: 44px;
+    padding: 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+.doc-link::after { content: "→"; color: var(--text-faint); font-size: 13px; }
+.doc-link:active { color: var(--gold); }
+
+.lib-name { font-size: 15px; font-weight: 600; margin: 22px 0 0; }
+.lib-meta {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin: 3px 0 0;
+}
+
+/* Recessed like the gauge and the keybed, so verbatim legal text reads as
+   quoted rather than as more of the prose above it */
+.licence {
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.65;
+    color: var(--text-faint);
+    background: var(--well);
+    border: 1px solid var(--edge-soft);
+    border-radius: 8px;
+    margin: 12px 0 0;
+    padding: 14px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+/* ---------- picker footer ---------- */
+
+.foot {
+    margin-top: 18px;
+    padding-top: 10px;
+    border-top: 1px solid var(--edge-soft);
+    text-align: center;
+}
+.foot a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-decoration: none;
+}
+.foot a:active { color: var(--gold); }
+
 /* ---------- laptops and up ---------- */
 
 /* The plate widens and the display type grows with it, so the extra room reads
@@ -760,6 +843,9 @@ html.sheet-open { overflow: hidden; }
     .tuning-link { padding: 17px var(--stage-pad); }
     .tuning-link .t-name { font-size: 19px; }
     .tuning-link .t-note { font-size: 12.5px; }
+
+    .credits { font-size: 17px; }
+    .licence { font-size: 10.5px; padding: 18px; }
 }
 
 /* ---------- pointer devices ---------- */
@@ -769,7 +855,7 @@ html.sheet-open { overflow: hidden; }
 @media (hover: hover) and (pointer: fine) {
 
     .tuning-link, .tuning-link .t-name::after,
-    .back, .field input, .field select,
+    .back, .foot a, .about p a, .credits a, .doc-link, .field input, .field select,
     .enh-btn, .wkey, .bkey {
         transition: background-color 140ms ease, border-color 140ms ease,
                     color 140ms ease, transform 140ms ease, filter 140ms ease;
@@ -781,7 +867,9 @@ html.sheet-open { overflow: hidden; }
         transform: translateX(3px);
     }
 
-    .back:hover { color: var(--gold); }
+    .back:hover, .foot a:hover { color: var(--gold); }
+    .about p a:hover, .credits a:hover { color: var(--gold); border-color: var(--gold); }
+    .doc-link:hover, .doc-link:hover::after { color: var(--gold); }
     .info-btn:hover, .sheet-close:hover { color: var(--gold); border-color: var(--gold); }
 
     .mic:not(.live):hover { background: rgba(242, 204, 90, 0.12); }
@@ -819,12 +907,13 @@ html.sheet-open { overflow: hidden; }
     .gauge svg { max-width: 380px; }
 }
 
-/* Narrow windows far taller than any phone: stop stretching the plate and
-   centre it, rather than letting the extra height open up as dead space.
-   Width-gated, because the desktop layout fills its height on its own. */
+/* Narrow windows far taller than any phone: centre the plate rather than letting
+   the extra height open up as dead space. Width-gated, because the desktop layout
+   fills its height on its own, and page-gated, because a fixed height would cut
+   off the picker and the about page, which run as long as their content. */
 @media (max-width: 699px) and (min-height: 880px) {
-    body { align-items: center; }
-    .stage {
+    body:not(.home):not(.doc) { align-items: center; }
+    body:not(.home):not(.doc) .stage {
         min-height: 0;
         height: 860px;
         border-radius: 20px;
