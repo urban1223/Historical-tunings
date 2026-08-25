@@ -236,50 +236,112 @@ function setDroneWave() {
 }
 
 // ---------------------------------------------------------------- detection
-const MIN_HZ = 45;          // below harpsichord GG at A=415
+const MIN_HZ = 36;          // below harpsichord FF at A=392, the lowest pitch standard
 const MAX_HZ = 2200;        // above the top of the violin/recorder register
 const CLARITY_MIN = 0.5;
 const PEAK_FACTOR = 0.9;
 
 let analyser = null, micStream = null, lowPass = null, highPass = null;
+let micStarting = false;   // getUserMedia is awaited, so two fast taps would open two streams
+let resumeOnShow = false;  // set only when the tab took the mic away, never by the button
 let detBuf = null, nsdf = null, peakLags = null, peakVals = null;
-let minLag = 0, maxLag = 0, halfWin = 0;
-let noiseFloor = 0.0015;
+let minLag = 0, maxLag = 0, halfWin = 0, winSize = 0;
+let fftRe = null, fftIm = null, sigRe = null, sigIm = null, prefixSq = null;
+let twCos = null, twSin = null, bitRev = null;
 
 function initDetector(fftSize, sampleRate) {
     halfWin = Math.floor(fftSize / 2);
+    winSize = fftSize;
     minLag = Math.max(2, Math.floor(sampleRate / MAX_HZ));
     maxLag = Math.min(halfWin - 1, Math.ceil(sampleRate / MIN_HZ));
     detBuf = new Float32Array(fftSize);
     nsdf = new Float32Array(maxLag + 2);
-    peakLags = new Int32Array(64);
-    peakVals = new Float32Array(64);
+    // Lobes are set by the top partial, not the fundamental, so the bound is the
+    // lowpass over MIN_HZ: 5kHz/36Hz gives 139, and 192 leaves room to move either
+    peakLags = new Int32Array(192);
+    peakVals = new Float32Array(192);
+
+    fftRe = new Float64Array(fftSize);
+    fftIm = new Float64Array(fftSize);
+    sigRe = new Float64Array(fftSize);
+    sigIm = new Float64Array(fftSize);
+    prefixSq = new Float64Array(fftSize + 1);
+
+    const levels = Math.round(Math.log2(fftSize));
+    twCos = new Float64Array(fftSize / 2);
+    twSin = new Float64Array(fftSize / 2);
+    for (let i = 0; i < fftSize / 2; i++) {
+        twCos[i] = Math.cos(2 * Math.PI * i / fftSize);
+        twSin[i] = Math.sin(2 * Math.PI * i / fftSize);
+    }
+    bitRev = new Uint32Array(fftSize);
+    for (let i = 0; i < fftSize; i++) {
+        let x = i, r = 0;
+        for (let j = 0; j < levels; j++) { r = (r << 1) | (x & 1); x >>= 1; }
+        bitRev[i] = r;
+    }
+}
+
+// Radix-2 in place, twiddles and bit-reversal precomputed once per mic session
+function fft(re, im, inverse) {
+    const n = re.length;
+    for (let i = 0; i < n; i++) {
+        const j = bitRev[i];
+        if (j > i) {
+            let t = re[i]; re[i] = re[j]; re[j] = t;
+            t = im[i]; im[i] = im[j]; im[j] = t;
+        }
+    }
+    for (let size = 2; size <= n; size *= 2) {
+        const half = size / 2, step = n / size;
+        for (let i = 0; i < n; i += size) {
+            for (let j = i, k = 0; j < i + half; j++, k += step) {
+                const c = twCos[k], s = inverse ? -twSin[k] : twSin[k];
+                const tre = re[j + half] * c + im[j + half] * s;
+                const tim = -re[j + half] * s + im[j + half] * c;
+                re[j + half] = re[j] - tre; im[j + half] = im[j] - tim;
+                re[j] += tre; im[j] += tim;
+            }
+        }
+    }
+    // Only the real part is read back, so the imaginary scaling is skipped
+    if (inverse) for (let i = 0; i < n; i++) re[i] /= n;
 }
 
 // MPM (McLeod Pitch Method). Normalizing each lag by its own energy holds
 // accuracy while a note decays, and yields the clarity value used as the gate.
+// Clarity carries the decision on its own: room noise is broadband and fails it at
+// any level, so nothing below is rejected for being quiet.
 function detectPitch(buf, sampleRate) {
-    let rms = 0;
-    for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
-    rms = Math.sqrt(rms / buf.length);
+    // Doubles as the NSDF denominator and as the cheap way out of a silent frame,
+    // so it runs before the transforms rather than after them
+    prefixSq[0] = 0;
+    for (let i = 0; i < winSize; i++) prefixSq[i + 1] = prefixSq[i] + buf[i] * buf[i];
+    const head = prefixSq[halfWin];
+    if (head <= 0) return null;    // all-zero input: no signal to normalise against
 
-    // Tracks the room from quiet frames only; a cheap early-out before the
-    // expensive part, with clarity below as the real decision.
-    if (rms < noiseFloor * 2.5) noiseFloor += (rms - noiseFloor) * 0.02;
-    if (rms < Math.max(0.004, noiseFloor * 3.5)) return null;
-
-    let energy = 0;
-    for (let t = 0; t <= maxLag; t++) {
-        let r = 0, m = 0;
-        for (let j = 0; j < halfWin; j++) {
-            const a = buf[j], b = buf[j + t];
-            r += a * b;
-            m += a * a + b * b;
-        }
-        nsdf[t] = m > 0 ? (2 * r) / m : 0;
-        energy += m;
+    // The numerator is a cross-correlation of the first half against the whole
+    // buffer, so one transform pair replaces a loop over every lag.
+    for (let i = 0; i < winSize; i++) {
+        fftRe[i] = i < halfWin ? buf[i] : 0;
+        fftIm[i] = 0;
+        sigRe[i] = buf[i];
+        sigIm[i] = 0;
     }
-    if (energy === 0) return null;
+    fft(fftRe, fftIm, false);
+    fft(sigRe, sigIm, false);
+    for (let i = 0; i < winSize; i++) {
+        const a = fftRe[i], b = fftIm[i], c = sigRe[i], d = sigIm[i];
+        fftRe[i] = a * c + b * d;
+        fftIm[i] = a * d - b * c;
+    }
+    fft(fftRe, fftIm, true);
+
+    // halfWin + maxLag stays inside the buffer, so no wrapped lag is ever read
+    for (let t = 0; t <= maxLag; t++) {
+        const m = head + (prefixSq[t + halfWin] - prefixSq[t]);
+        nsdf[t] = m > 0 ? (2 * fftRe[t]) / m : 0;
+    }
 
     // Key maxima: highest point in each positively-sloped zero-crossing region.
     let count = 0, t = 0;
@@ -327,23 +389,30 @@ function detectPitch(buf, sampleRate) {
 }
 
 // ---------------------------------------------------------------- mic
-async function toggleMic() {
-    if (analyser) {
-        analyser = null;
-        if (lowPass) { lowPass.disconnect(); lowPass = null; }
-        if (highPass) { highPass.disconnect(); highPass = null; }
-        if (micStream) micStream.getTracks().forEach(t => t.stop());
-        els.micBtn.classList.remove('live');
-        els.micLabel.textContent = 'Turn on microphone';
-        resetReadout();
-        return;
-    }
+// Releases the device, so the browser's recording indicator goes out with it
+function stopMic() {
+    analyser = null;
+    clearInterval(detectTimer); detectTimer = 0;
+    if (lowPass) { lowPass.disconnect(); lowPass = null; }
+    if (highPass) { highPass.disconnect(); highPass = null; }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    els.micBtn.classList.remove('live');
+    els.micLabel.textContent = 'Turn on microphone';
+    resetReadout();
+}
+
+// Silent when the tab is restoring listening by itself: nothing was tapped, so a
+// dialog would arrive unprompted and the button going dark says enough
+async function startMic(silent) {
     if (!window.isSecureContext) {
-        alert('Microphone access needs a secure connection (HTTPS).');
+        if (!silent) alert('Microphone access needs a secure connection (HTTPS).');
         return;
     }
     const ctx = ensureAudio();
+    micStarting = true;
     try {
+        // iOS suspends the context in the background and the analyser reads silence until it wakes
+        if (ctx.state === 'suspended') await ctx.resume();
         micStream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: false,
@@ -359,7 +428,8 @@ async function toggleMic() {
 
         lowPass = ctx.createBiquadFilter();
         lowPass.type = 'lowpass';
-        lowPass.frequency.setValueAtTime(3500, ctx.currentTime);
+        // Higher than this and a phone's presence boost costs more than the extra partials gain
+        lowPass.frequency.setValueAtTime(5000, ctx.currentTime);
 
         analyser = ctx.createAnalyser();
         analyser.fftSize = 8192;
@@ -370,6 +440,8 @@ async function toggleMic() {
         lowPass.connect(analyser);
 
         els.micBtn.classList.add('live');
+        lastDetect = 0;
+        detectTimer = setInterval(detect, DETECT_MS);
         els.micLabel.textContent = 'Listening';
         requestAnimationFrame(loop);
     } catch (e) {
@@ -381,21 +453,42 @@ async function toggleMic() {
             NotReadableError: 'The microphone is already in use by another app or tab.',
             TrackStartError: 'The microphone is already in use by another app or tab.'
         }[e.name];
-        alert(msg || ('Microphone not available: ' + e.message));
+        if (!silent) alert(msg || ('Microphone not available: ' + e.message));
+    } finally {
+        micStarting = false;
     }
+    // The tab can leave while the permission prompt is still open
+    if (analyser && document.hidden) { resumeOnShow = true; stopMic(); }
+}
+
+function toggleMic() {
+    if (micStarting) return;
+    if (analyser) { resumeOnShow = false; stopMic(); return; }
+    startMic(false);
 }
 
 // ---------------------------------------------------------------- render loop
-const HISTORY = 5;
-const freqHistory = new Array(HISTORY).fill(null);
-let histIdx = 0;
+// Measured in milliseconds, not frames: rAF runs at 120Hz on recent iPhones and
+// at 30 in low power mode, and a frame count would mean a different window on each
+// 30 Hz. The analysis window is 171ms, so faster than this mostly re-reads the same audio
+const DETECT_MS = 30;
+const STABLE_MS = 200;
+// A count alone starves at a low frame rate, so the window must also have spanned
+// real time before anything is shown
+const MIN_READINGS = 3;
+const MIN_SPAN_MS = 120;
+// A semitone. Past that the note name itself is ambiguous, so a reading that moves
+// this far inside the window is speech or a note change, not a note being held
+const STABLE_CENTS = 100;
+const freqHistory = [];         // { f, t }, trimmed to STABLE_MS on every push
 let needleAngle = 0, targetCents = 0;
 let displayedName = null, candidateName = null, agreeCount = 0;
-let silenceMs = 0, idle = true;
+let quietMs = 0, idle = true;
 let lastFrame = performance.now();
+let lastDetect = 0, detectTimer = 0;
 
 function resetReadout() {
-    freqHistory.fill(null); histIdx = 0;
+    freqHistory.length = 0;
     targetCents = 0;
     displayedName = candidateName = null; agreeCount = 0;
     idle = true;
@@ -406,11 +499,16 @@ function resetReadout() {
 
 // Filters frequency rather than cents: cents are relative to whichever note is
 // nearest, so a note change would put two different references in the window.
-function medianFreq(f) {
-    freqHistory[histIdx % HISTORY] = f;
-    histIdx++;
-    const valid = freqHistory.filter(v => v !== null).sort((a, b) => a - b);
-    return valid[Math.floor(valid.length / 2)];
+// Speech is periodic enough to clear the clarity gate, so steadiness is what
+// separates it from a string: null until the window is both full and settled.
+function steadyFreq(f, now) {
+    freqHistory.push({ f: f, t: now });
+    while (freqHistory.length && now - freqHistory[0].t > STABLE_MS) freqHistory.shift();
+    if (freqHistory.length < MIN_READINGS) return null;
+    if (now - freqHistory[0].t < MIN_SPAN_MS) return null;
+    const sorted = freqHistory.map(e => e.f).sort((a, b) => a - b);
+    if (1200 * Math.log2(sorted[sorted.length - 1] / sorted[0]) >= STABLE_CENTS) return null;
+    return sorted[Math.floor(sorted.length / 2)];
 }
 
 // Which octave the note falls in doesn't matter to the readout, so the pitch is
@@ -427,48 +525,72 @@ function nearestNote(freq) {
     return best;
 }
 
-function loop() {
+// Driven by its own timer, not by the display: the analyser always holds the most
+// recent window, so the rate the audio is read at should not depend on the refresh
+// rate of the screen in front of it.
+function detect() {
     if (!analyser || !detBuf) return;
 
     const now = performance.now();
-    const dt = Math.min(2, (now - lastFrame) / 16.666);
-    lastFrame = now;
+    const sinceDetect = lastDetect ? Math.min(1000, now - lastDetect) : DETECT_MS;
+    lastDetect = now;
 
     analyser.getFloatTimeDomainData(detBuf);
     const pitch = detectPitch(detBuf, audioCtx.sampleRate);
 
-    if (pitch) {
-        silenceMs = 0;
-        idle = false;
+    const freq = pitch ? steadyFreq(pitch.freq, now) : null;
 
-        const freq = medianFreq(pitch.freq);
+    // An unsteady reading is treated exactly like no reading, so talking near the
+    // tuner leaves the last settled note up and then times out rather than dancing
+    if (freq !== null) {
+        quietMs = 0;
+
         const near = nearestNote(freq);
-        targetCents = near.cents;
 
         // The letter switches only after the same note wins a few frames, so a
         // pitch sitting on a boundary doesn't flicker.
         const name = noteNames[near.pc];
         if (name === candidateName) agreeCount++;
         else { candidateName = name; agreeCount = 1; }
-        if (agreeCount >= 3 && name !== displayedName) {
-            displayedName = name;
-            renderNote(name);
-        }
 
-        // The measured deviation; the needle lags it by design
-        const shown = Math.max(-99.9, Math.min(99.9, targetCents));
-        els.cents.textContent = (shown > 0 ? '+' : '') + shown.toFixed(1) + '¢';
-        els.cents.classList.toggle('in-tune', Math.abs(targetCents) <= 2);
+        // A cents figure means nothing without the letter it is measured from, so
+        // the number and the needle wait for the same agreement the letter does
+        if (agreeCount >= 3) {
+            idle = false;
+            if (name !== displayedName) {
+                displayedName = name;
+                renderNote(name);
+            }
+
+            // The measured deviation; the needle lags it by design
+            targetCents = near.cents;
+            const shown = Math.max(-99.9, Math.min(99.9, targetCents));
+            els.cents.textContent = (shown > 0 ? '+' : '') + shown.toFixed(1) + '¢';
+            els.cents.classList.toggle('in-tune', Math.abs(targetCents) <= 2);
+        }
     } else {
-        freqHistory.fill(null); histIdx = 0;
-        silenceMs += dt * 16.666;
-        if (silenceMs > 4000) {
+        // Emptied only when the detector found nothing periodic at all; an unsteady
+        // note keeps filling it so a reading can settle without a fresh twelve frames
+        if (!pitch) freqHistory.length = 0;
+        quietMs += sinceDetect;
+        if (quietMs > 4000) {
             targetCents = 0;
             if (!idle) resetReadout();
         }
     }
+}
 
-    // Needle physics: chase fast when far, settle slowly when close
+// The needle keeps its own clock so it stays smooth at whatever the display runs at
+function loop() {
+    if (!analyser) return;
+    const now = performance.now();
+    const dt = Math.min(2, (now - lastFrame) / 16.666);
+    lastFrame = now;
+    animate(dt);
+}
+
+// Needle physics: chase fast when far, settle slowly when close
+function animate(dt) {
     const diff = Math.abs(targetCents - needleAngle);
     const speed = diff > 15 ? 0.30 : 0.12;
     needleAngle += (targetCents - needleAngle) * speed * dt;
@@ -605,6 +727,16 @@ function closeSheet() {
 
 // ---------------------------------------------------------------- wiring
 els.micBtn.addEventListener('click', toggleMic);
+// A hidden tab throttles the detector to about 1Hz, too slow for a reading to ever
+// settle, so the device is handed back on the way out and taken again on the way in
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (analyser) { resumeOnShow = true; stopMic(); }
+    } else if (resumeOnShow) {
+        resumeOnShow = false;
+        startMic(true);
+    }
+});
 els.aRef.addEventListener('input', retuneDrones);
 // A temperament with nothing sourced to say gets no button at all
 if (tuning.about) els.infoBtn.addEventListener('click', openSheet);
