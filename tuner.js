@@ -235,160 +235,11 @@ function setDroneWave() {
     }, 25);
 }
 
-// ---------------------------------------------------------------- detection
-const MIN_HZ = 36;          // below harpsichord FF at A=392, the lowest pitch standard
-const MAX_HZ = 2200;        // above the top of the violin/recorder register
-const CLARITY_MIN = 0.5;
-const PEAK_FACTOR = 0.9;
-
+// ---------------------------------------------------------------- mic
 let analyser = null, micStream = null, lowPass = null, highPass = null;
 let micStarting = false;   // getUserMedia is awaited, so two fast taps would open two streams
 let resumeOnShow = false;  // set only when the tab took the mic away, never by the button
-let detBuf = null, nsdf = null, peakLags = null, peakVals = null;
-let minLag = 0, maxLag = 0, halfWin = 0, winSize = 0;
-let fftRe = null, fftIm = null, sigRe = null, sigIm = null, prefixSq = null;
-let twCos = null, twSin = null, bitRev = null;
 
-function initDetector(fftSize, sampleRate) {
-    halfWin = Math.floor(fftSize / 2);
-    winSize = fftSize;
-    minLag = Math.max(2, Math.floor(sampleRate / MAX_HZ));
-    maxLag = Math.min(halfWin - 1, Math.ceil(sampleRate / MIN_HZ));
-    detBuf = new Float32Array(fftSize);
-    nsdf = new Float32Array(maxLag + 2);
-    // Lobes are set by the top partial, not the fundamental, so the bound is the
-    // lowpass over MIN_HZ: 5kHz/36Hz gives 139, and 192 leaves room to move either
-    peakLags = new Int32Array(192);
-    peakVals = new Float32Array(192);
-
-    fftRe = new Float64Array(fftSize);
-    fftIm = new Float64Array(fftSize);
-    sigRe = new Float64Array(fftSize);
-    sigIm = new Float64Array(fftSize);
-    prefixSq = new Float64Array(fftSize + 1);
-
-    const levels = Math.round(Math.log2(fftSize));
-    twCos = new Float64Array(fftSize / 2);
-    twSin = new Float64Array(fftSize / 2);
-    for (let i = 0; i < fftSize / 2; i++) {
-        twCos[i] = Math.cos(2 * Math.PI * i / fftSize);
-        twSin[i] = Math.sin(2 * Math.PI * i / fftSize);
-    }
-    bitRev = new Uint32Array(fftSize);
-    for (let i = 0; i < fftSize; i++) {
-        let x = i, r = 0;
-        for (let j = 0; j < levels; j++) { r = (r << 1) | (x & 1); x >>= 1; }
-        bitRev[i] = r;
-    }
-}
-
-// Radix-2 in place, twiddles and bit-reversal precomputed once per mic session
-function fft(re, im, inverse) {
-    const n = re.length;
-    for (let i = 0; i < n; i++) {
-        const j = bitRev[i];
-        if (j > i) {
-            let t = re[i]; re[i] = re[j]; re[j] = t;
-            t = im[i]; im[i] = im[j]; im[j] = t;
-        }
-    }
-    for (let size = 2; size <= n; size *= 2) {
-        const half = size / 2, step = n / size;
-        for (let i = 0; i < n; i += size) {
-            for (let j = i, k = 0; j < i + half; j++, k += step) {
-                const c = twCos[k], s = inverse ? -twSin[k] : twSin[k];
-                const tre = re[j + half] * c + im[j + half] * s;
-                const tim = -re[j + half] * s + im[j + half] * c;
-                re[j + half] = re[j] - tre; im[j + half] = im[j] - tim;
-                re[j] += tre; im[j] += tim;
-            }
-        }
-    }
-    // Only the real part is read back, so the imaginary scaling is skipped
-    if (inverse) for (let i = 0; i < n; i++) re[i] /= n;
-}
-
-// MPM (McLeod Pitch Method). Normalizing each lag by its own energy holds
-// accuracy while a note decays, and yields the clarity value used as the gate.
-// Clarity carries the decision on its own: room noise is broadband and fails it at
-// any level, so nothing below is rejected for being quiet.
-function detectPitch(buf, sampleRate) {
-    // Doubles as the NSDF denominator and as the cheap way out of a silent frame,
-    // so it runs before the transforms rather than after them
-    prefixSq[0] = 0;
-    for (let i = 0; i < winSize; i++) prefixSq[i + 1] = prefixSq[i] + buf[i] * buf[i];
-    const head = prefixSq[halfWin];
-    if (head <= 0) return null;    // all-zero input: no signal to normalise against
-
-    // The numerator is a cross-correlation of the first half against the whole
-    // buffer, so one transform pair replaces a loop over every lag.
-    for (let i = 0; i < winSize; i++) {
-        fftRe[i] = i < halfWin ? buf[i] : 0;
-        fftIm[i] = 0;
-        sigRe[i] = buf[i];
-        sigIm[i] = 0;
-    }
-    fft(fftRe, fftIm, false);
-    fft(sigRe, sigIm, false);
-    for (let i = 0; i < winSize; i++) {
-        const a = fftRe[i], b = fftIm[i], c = sigRe[i], d = sigIm[i];
-        fftRe[i] = a * c + b * d;
-        fftIm[i] = a * d - b * c;
-    }
-    fft(fftRe, fftIm, true);
-
-    // halfWin + maxLag stays inside the buffer, so no wrapped lag is ever read
-    for (let t = 0; t <= maxLag; t++) {
-        const m = head + (prefixSq[t + halfWin] - prefixSq[t]);
-        nsdf[t] = m > 0 ? (2 * fftRe[t]) / m : 0;
-    }
-
-    // Key maxima: highest point in each positively-sloped zero-crossing region.
-    let count = 0, t = 0;
-    // Starts at lag 0 so the lobe skipped here is the trivial one at zero;
-    // minLag is applied at selection time instead.
-    while (t <= maxLag && nsdf[t] > 0) t++;
-    while (t <= maxLag && count < peakLags.length) {
-        while (t <= maxLag && nsdf[t] <= 0) t++;
-        if (t > maxLag) break;
-        let bestV = -2, bestT = t;
-        while (t <= maxLag && nsdf[t] > 0) {
-            if (nsdf[t] > bestV) { bestV = nsdf[t]; bestT = t; }
-            t++;
-        }
-        if (bestV > -2) { peakLags[count] = bestT; peakVals[count] = bestV; count++; }
-    }
-    if (count === 0) return null;
-
-    let globalMax = -2;
-    for (let i = 0; i < count; i++) {
-        if (peakLags[i] >= minLag && peakVals[i] > globalMax) globalMax = peakVals[i];
-    }
-    if (globalMax < CLARITY_MIN) return null;
-
-    // First peak clearing the threshold, not the tallest — a harmonic can
-    // correlate as strongly as the fundamental, so the earliest wins.
-    const threshold = PEAK_FACTOR * globalMax;
-    let lag = -1;
-    for (let i = 0; i < count; i++) {
-        if (peakLags[i] >= minLag && peakVals[i] >= threshold) { lag = peakLags[i]; break; }
-    }
-    if (lag < 0) return null;
-
-    let refined = lag;
-    if (lag > 0 && lag < maxLag) {
-        const y0 = nsdf[lag - 1], y1 = nsdf[lag], y2 = nsdf[lag + 1];
-        const denom = 2 * y1 - y0 - y2;
-        if (denom !== 0) refined = lag + 0.5 * (y2 - y0) / denom;
-    }
-    if (refined <= 0) return null;
-
-    const freq = sampleRate / refined;
-    if (!isFinite(freq) || freq < MIN_HZ || freq > MAX_HZ) return null;
-    return { freq };
-}
-
-// ---------------------------------------------------------------- mic
 // Releases the device, so the browser's recording indicator goes out with it
 function stopMic() {
     analyser = null;
@@ -408,8 +259,15 @@ async function startMic(silent) {
         if (!silent) alert('Microphone access needs a secure connection (HTTPS).');
         return;
     }
-    const ctx = ensureAudio();
     micStarting = true;
+    // Asking for the microphone before the detector can use it would light the
+    // recording indicator over an app that cannot listen
+    if (!await TunerCore.whenReady()) {
+        micStarting = false;
+        if (!silent) alert('The pitch detector could not load. Reload the page and try again.');
+        return;
+    }
+    const ctx = ensureAudio();
     try {
         // iOS suspends the context in the background and the analyser reads silence until it wakes
         if (ctx.state === 'suspended') await ctx.resume();
@@ -433,7 +291,9 @@ async function startMic(silent) {
 
         analyser = ctx.createAnalyser();
         analyser.fftSize = 8192;
-        initDetector(analyser.fftSize, ctx.sampleRate);
+        if (!TunerCore.init(analyser.fftSize, ctx.sampleRate)) {
+            throw new Error('the detector could not start at ' + ctx.sampleRate + 'Hz');
+        }
 
         source.connect(highPass);
         highPass.connect(lowPass);
@@ -529,16 +389,18 @@ function nearestNote(freq) {
 // recent window, so the rate the audio is read at should not depend on the refresh
 // rate of the screen in front of it.
 function detect() {
-    if (!analyser || !detBuf) return;
+    if (!analyser) return;
 
     const now = performance.now();
     const sinceDetect = lastDetect ? Math.min(1000, now - lastDetect) : DETECT_MS;
     lastDetect = now;
 
-    analyser.getFloatTimeDomainData(detBuf);
-    const pitch = detectPitch(detBuf, audioCtx.sampleRate);
+    // The analyser writes its frame into the core's own memory, so the audio goes
+    // from the graph to the detector without being copied
+    analyser.getFloatTimeDomainData(TunerCore.input());
+    const pitch = TunerCore.detect();
 
-    const freq = pitch ? steadyFreq(pitch.freq, now) : null;
+    const freq = pitch !== null ? steadyFreq(pitch, now) : null;
 
     // An unsteady reading is treated exactly like no reading, so talking near the
     // tuner leaves the last settled note up and then times out rather than dancing
@@ -571,7 +433,7 @@ function detect() {
     } else {
         // Emptied only when the detector found nothing periodic at all; an unsteady
         // note keeps filling it so a reading can settle without a fresh twelve frames
-        if (!pitch) freqHistory.length = 0;
+        if (pitch === null) freqHistory.length = 0;
         quietMs += sinceDetect;
         if (quietMs > 4000) {
             targetCents = 0;

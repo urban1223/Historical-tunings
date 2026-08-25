@@ -1,5 +1,5 @@
 // Bump to discard every previously cached response
-const CACHE_NAME = 'na-tuner-v13';
+const CACHE_NAME = 'na-tuner-v14';
 
 // Everything the app needs to open with no network at all
 const SHELL = [
@@ -9,6 +9,8 @@ const SHELL = [
   './style.css',
   './ozadje.jpg',
   './tuner.js',
+  './tuner-wasm.js',
+  './tuner-core.wasm',
   './tunings.js',
   './manifest.json',
   './favicon.ico',
