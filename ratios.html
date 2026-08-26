@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pure Ratios — Historical Tunings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141b29">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- iOS reads only the prefixed name, so both are needed -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="ratios">
+
+<main class="stage grain">
+
+    <header class="stage-head">
+        <a class="back" href="index.html">← All</a>
+        <h1 class="tuning-name">Pure Ratios</h1>
+        <p class="tuning-note">Build a whole-number ratio, hear it against a root, and see where it falls
+        between the keys.</p>
+    </header>
+
+    <div class="rule"></div>
+
+    <section class="ratio-readout">
+        <div class="ratio-figure" id="ratio-figure"></div>
+        <div class="ratio-name" id="ratio-name"></div>
+        <div class="ratio-facts" id="ratio-facts"></div>
+    </section>
+
+    <section class="harm-picker">
+        <div class="harm-row">
+            <span class="harm-label">Upper harmonic</span>
+            <div class="harm-grid" id="harm-num"></div>
+        </div>
+        <div class="harm-row">
+            <span class="harm-label">Lower harmonic</span>
+            <div class="harm-grid" id="harm-den"></div>
+        </div>
+    </section>
+
+    <section class="voice-row">
+        <span class="harm-label">Sound the upper note as</span>
+        <div class="enh-pair" id="voice-pick">
+            <button class="enh-btn active" type="button" data-voice="pure">
+                <span class="voice-sys">Just intonation</span>
+                <span class="voice-val" id="voice-pure-val">—</span>
+                <span class="voice-off">pure</span>
+            </button>
+            <button class="enh-btn" type="button" data-voice="key">
+                <span class="voice-sys" id="voice-key-sys">—</span>
+                <span class="voice-val" id="voice-key-val">—</span>
+                <span class="voice-off" id="voice-key-off">—</span>
+            </button>
+        </div>
+    </section>
+
+    <button class="sound-btn" id="sound-btn" type="button">Play</button>
+
+    <section class="controls">
+        <div class="field">
+            <label for="root-hz" id="root-hz-label">Root</label>
+            <input type="number" id="root-hz" value="415" step="any" min="20" max="4000" inputmode="decimal">
+        </div>
+        <div class="field">
+            <label for="wave-type">Waveform</label>
+            <!-- Sawtooth first: only a waveform with even harmonics beats at these intervals -->
+            <select id="wave-type">
+                <option value="sawtooth" selected>Sawtooth</option>
+                <option value="triangle">Triangle</option>
+                <option value="sine">Sine</option>
+            </select>
+        </div>
+        <div class="field field-wide">
+            <label for="tuning-pick">Compare against</label>
+            <select id="tuning-pick"></select>
+        </div>
+    </section>
+
+    <p class="sheet-note">The ratio is exact — that is what just intonation means. The key is wherever the
+    tuning you pick puts its nearest note, and every tuning in the list is a fixed set of twelve, which is
+    why none of them can hold more than a handful of these ratios.</p>
+
+    <p class="sheet-note">The root is 1/1 and carries the pitch, so the ratio never moves when you change
+    the tuning — the keys move under it instead. The keyboard is a ruler here, not an instrument: every key
+    is drawn and priced at the tuning's own interval from the root.</p>
+
+    <p class="sheet-note">Interval names follow the list of intervals compiled by the Huygens-Fokker
+    Foundation; a ratio absent from it is left unnamed.</p>
+
+    <section class="keyboard-wrap">
+        <div class="kb-head">
+            <span>Tap a key to set the root</span>
+        </div>
+        <div class="kb-scroll" id="kb-scroll">
+            <div class="keyboard" id="kb">
+                <div class="kb-marker" id="marker" hidden></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script src="tunings.js"></script>
+<script src="ratios.js"></script>
+</body>
+</html>

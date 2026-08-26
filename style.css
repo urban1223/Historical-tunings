@@ -19,6 +19,7 @@
     --text-faint:  #8b95a8;   /* 5.7:1 on the panel; the 9px labels need the full 4.5:1 */
 
     --green:       #68c79b;   /* verdigris; sits between the navy and the gold rather than beside them */
+    --green-deep:  #3f8f6c;
 
     --edge:        rgba(242, 204, 90, 0.16);
     --edge-soft:   rgba(255, 255, 255, 0.07);
@@ -108,7 +109,7 @@ body::after {
 /* ---------- header ---------- */
 
 /* Symmetric inset centres the title and leaves room for the back link, so long
-   names like "Just Intonation" can't run underneath it */
+   names like "Werckmeister III" can't run underneath it */
 .stage-head {
     text-align: center;
     position: relative;
@@ -367,6 +368,8 @@ body::after {
     background-repeat: no-repeat;
 }
 .field select option { background: var(--panel); color: var(--text); }
+/* A long temperament name needs the whole row; the short controls pair off above it */
+.field-wide { grid-column: 1 / -1; }
 
 /* ---------- enharmonics ---------- */
 
@@ -529,7 +532,7 @@ body.home .stage { justify-content: flex-start; }
 
 /* Negative margins cancel the plate's padding so rows and rules reach both
    edges; each child pads its own text back to the text column */
-#list {
+#list, .extras {
     margin-left: calc(-1 * var(--stage-pad));
     margin-right: calc(-1 * var(--stage-pad));
 }
@@ -810,6 +813,160 @@ html.sheet-open { overflow: hidden; }
 }
 .foot a:active { color: var(--gold); }
 
+/* ---------- pure ratios ---------- */
+
+/* Long enough to need the scroll, so the plate is not pinned to the viewport */
+body.ratios .stage { justify-content: flex-start; }
+
+.ratio-readout { text-align: center; }
+
+.ratio-figure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 46px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--gold);
+}
+.ratio-figure .r-bar { color: var(--text-faint); font-weight: 400; }
+
+/* Held at one line's height so a ratio with no name doesn't collapse the row */
+.ratio-name {
+    margin-top: 10px;
+    min-height: 17px;
+    font-size: 13px;
+    color: var(--text);
+}
+.ratio-limit { color: var(--text-faint); }
+
+.ratio-facts {
+    margin-top: 4px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-soft);
+}
+
+.harm-picker { display: flex; flex-direction: column; gap: 10px; }
+.harm-row { display: flex; flex-direction: column; gap: 5px; }
+.harm-label {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+.harm-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.harm-btn {
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: 34px;
+    padding: 0;
+    background: var(--well);
+    border: 1px solid var(--edge-soft);
+    border-radius: 8px;
+    color: var(--text-soft);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.harm-btn.active { background: var(--gold); border-color: var(--gold); color: #141b29; }
+
+/* Each voice carries the system it comes from over the note that system gives, so
+   the pair reads as a comparison rather than as two unexplained words */
+.voice-row { display: flex; flex-direction: column; gap: 5px; }
+.voice-row .enh-pair { display: flex; border-radius: 12px; }
+.voice-row .enh-btn {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    min-height: 70px;
+    padding: 8px;
+}
+/* Size alone separates the two lines: dimming the 9px one would drop it under 4.5:1 */
+.voice-sys {
+    font-size: 9px;
+    line-height: 1.25;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.voice-val {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 1px;
+    font-size: 15px;
+    font-weight: 700;
+}
+.voice-row .enh-btn .accidental { height: 13px; margin-bottom: 1px; }
+/* How far this voice sits from the ratio: the deviation, then the beat rate it makes */
+.voice-off {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+/* Green only while the button is dark: on the lit one it would fight the gold */
+.enh-btn:not(.active) .voice-off.exact { color: var(--green); }
+
+.sound-btn {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    min-height: 48px;
+    background: transparent;
+    border: 1px solid var(--edge);
+    border-radius: 12px;
+    color: var(--gold);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.sound-btn:active { background: rgba(242, 204, 90, 0.12); }
+.sound-btn.live { background: var(--gold); color: #141b29; }
+
+/* The ratio drawn where it actually falls, which is usually between two keys */
+.kb-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--gold);
+    box-shadow: 0 0 6px rgba(242, 204, 90, 0.75);
+    z-index: 3;
+    pointer-events: none;
+}
+.kb-marker::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 9px solid var(--gold);
+}
+.kb-marker[hidden] { display: none; }
+
+.wkey.root {
+    background: linear-gradient(180deg, var(--green) 0%, var(--green-deep) 100%);
+    color: #0c2019;
+}
+.bkey.root {
+    background: linear-gradient(180deg, var(--green-deep) 0%, #265944 100%);
+    color: #0c2019;
+}
+/* Marks the key the ratio is measured against without competing with the marker */
+.wkey.near { box-shadow: inset 0 -4px 0 var(--gold-deep); }
+.bkey.near { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7), inset 0 -4px 0 var(--gold-deep); }
+
 /* ---------- laptops and up ---------- */
 
 /* The plate widens and the display type grows with it, so the extra room reads
@@ -837,6 +994,11 @@ html.sheet-open { overflow: hidden; }
     .mic { min-height: 60px; font-size: 13px; }
     .controls { gap: 18px; }
 
+    .ratio-figure { font-size: 58px; }
+    .ratio-name { font-size: 14px; }
+    .harm-grid { grid-template-columns: repeat(16, 1fr); }
+    .sound-btn { min-height: 56px; font-size: 13px; }
+
     .group-label { font-size: 10px; margin: 22px 0 10px; }
     .tuning-link { padding: 17px var(--stage-pad); }
     .tuning-link .t-name { font-size: 19px; }
@@ -854,7 +1016,7 @@ html.sheet-open { overflow: hidden; }
 
     .tuning-link, .tuning-link .t-name::after,
     .back, .foot a, .about p a, .credits a, .doc-link, .field input, .field select,
-    .enh-btn, .wkey, .bkey {
+    .enh-btn, .wkey, .bkey, .harm-btn, .sound-btn {
         transition: background-color 140ms ease, border-color 140ms ease,
                     color 140ms ease, transform 140ms ease, filter 140ms ease;
     }
@@ -877,6 +1039,11 @@ html.sheet-open { overflow: hidden; }
 
     .enh-btn:not(.active):hover { background: rgba(242, 204, 90, 0.10); color: var(--text); }
     .enh-btn.active:hover { background: var(--gold-deep); }
+
+    .harm-btn:not(.active):hover { background: rgba(242, 204, 90, 0.10); color: var(--text); }
+    .harm-btn.active:hover { background: var(--gold-deep); border-color: var(--gold-deep); }
+    .sound-btn:not(.live):hover { background: rgba(242, 204, 90, 0.12); }
+    .sound-btn.live:hover { background: var(--gold-deep); }
 
     /* filter rather than a second gradient, so the change animates */
     .wkey:not(.playing):hover { filter: brightness(1.06); }
@@ -910,8 +1077,8 @@ html.sheet-open { overflow: hidden; }
    fills its height on its own, and page-gated, because a fixed height would cut
    off the picker and the about page, which run as long as their content. */
 @media (max-width: 699px) and (min-height: 880px) {
-    body:not(.home):not(.doc) { align-items: center; }
-    body:not(.home):not(.doc) .stage {
+    body:not(.home):not(.doc):not(.ratios) { align-items: center; }
+    body:not(.home):not(.doc):not(.ratios) .stage {
         min-height: 0;
         height: 860px;
         border-radius: 20px;

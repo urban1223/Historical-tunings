@@ -86,19 +86,6 @@ const SIXTH_COMMA   = everyFifth(SYNTONIC_COMMA / 6);
 // Violin open strings are pure fifths, so the two share one frozen table
 const PURE_CHAIN = Object.freeze(fromFifths(everyFifth(0)));
 
-// Cents, not ratios: E is 8192/6561 and F♯ is 18/13, while D and B♭ land on no
-// simple fraction at all. No published scale matches, so there is no info panel.
-const JUST_CENTS = [0, 70.67, 183.31, 315.64, 384.36, 498.04, 563.38, 701.96, 772.63, 884.36, 990.37, 1088.27];
-
-// The other spelling of each black key
-const JUST_ALTERNATIVES = [
-    { idx: 1,  label: 'D♭', cents: 111.73 },
-    { idx: 3,  label: 'D♯', cents: 274.58 },
-    { idx: 6,  label: 'G♭', cents: 590.22 },
-    { idx: 8,  label: 'A♭', cents: 813.69 },
-    { idx: 10, label: 'A♯', cents: 976.54 }
-];
-
 const TUNINGS = [
     {
         slug: 'pythagorean', name: 'Pythagorean', group: 'Ancient',
@@ -109,20 +96,6 @@ const TUNINGS = [
         ],
         source: '12-tone Pythagorean scale — pyth_12.scl, Scala archive',
         cents: PURE_CHAIN
-    },
-    {
-        slug: 'just', name: 'Just Intonation', group: 'Ancient',
-        // "Pure in its home key" does not hold: C–E is 8192/6561, a schisma narrow
-        // of 5/4, so the C triad beats. F is the only triad that comes out pure.
-        note: 'Built from simple whole-number ratios; pure in its home key.',
-        cents: JUST_CENTS,
-        enharmonic: JUST_ALTERNATIVES.map(alt => ({
-            idx: alt.idx,
-            options: [
-                { label: NOTE_NAMES[alt.idx], cents: JUST_CENTS[alt.idx] },
-                { label: alt.label, cents: alt.cents }
-            ]
-        }))
     },
     {
         slug: 'violin', name: 'Violin Family', group: 'Ancient',
