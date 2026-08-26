@@ -1,8 +1,8 @@
 // ♯ and ♭ as artwork rather than font glyphs, so they render identically on
 // every device. They inherit currentColor.
 const ACCIDENTAL_SVG = {
-    '♯': '<svg class="{cls}" viewBox="0 0 64 100" aria-hidden="true"><path d="M4 43 L60 30 L60 47 L4 60 Z"/><path d="M4 69 L60 56 L60 73 L4 86 Z"/><rect x="18" y="6" width="5.5" height="88"/><rect x="41" y="1" width="5.5" height="88"/></svg>',
-    '♭': '<svg class="{cls}" viewBox="0 0 48 100" aria-hidden="true"><rect x="11" y="1" width="5.5" height="94"/><path d="M16.5 50 C 31 39, 46 49, 42.5 68 C 39 86, 25 92, 16.5 97 Z"/></svg>'
+    '♯': '<svg class="{cls}" viewBox="0 0 64 100" fill="currentColor" aria-hidden="true"><path d="M4 43 L60 30 L60 47 L4 60 Z"/><path d="M4 69 L60 56 L60 73 L4 86 Z"/><rect x="18" y="6" width="5.5" height="88"/><rect x="41" y="1" width="5.5" height="88"/></svg>',
+    '♭': '<svg class="{cls}" viewBox="0 0 48 100" fill="currentColor" aria-hidden="true"><rect x="11" y="1" width="5.5" height="94"/><path d="M16.5 50 C 31 39, 46 49, 42.5 68 C 39 86, 25 92, 16.5 97 Z"/></svg>'
 };
 
 // Turns a note name like "C♯" into markup with the accidental as inline SVG

@@ -267,7 +267,6 @@ body::after {
     letter-spacing: -0.04em;
 }
 .accidental { height: 54px; width: auto; margin-bottom: 9px; margin-left: 2px; }
-.accidental path, .accidental rect { fill: currentColor; }
 
 /* Idle state: a dim bar holding the note's place */
 .note-idle {
@@ -702,7 +701,7 @@ html.sheet-open { overflow: hidden; }
    em would resolve against each row's own size and misalign the two */
 .sheet-row {
     display: grid;
-    grid-template-columns: 3.3rem 3rem 1fr 2.3rem;
+    grid-template-columns: 3.3rem 3rem 1fr 3.2rem;
     align-items: center;
     gap: 6px;
     padding: 5px 0;
@@ -727,7 +726,6 @@ html.sheet-open { overflow: hidden; }
 .sheet-row.closing .num, .sheet-row.closing .tag { color: var(--gold-deep); }
 
 .sheet-acc { height: 0.82em; width: auto; vertical-align: -0.02em; margin-left: 1px; }
-.sheet-acc path, .sheet-acc rect { fill: currentColor; }
 
 /* ---------- about ---------- */
 

@@ -549,16 +549,16 @@ function renderSheet() {
     let h = tuning.about.map(p => '<p class="sheet-p">' + acc(p) + '</p>').join('');
 
     h += '<h3 class="sheet-h">The chain of fifths</h3>';
-    h += sheetTable(['Fifth', 'Off pure', 'Tempered by', 'Beats'], fifthRows().map(r =>
+    h += sheetTable(['Fifth', 'Off pure', 'Tempered by', 'Beats/s'], fifthRows().map(r =>
         '<div class="sheet-row' + (r.closing ? ' closing' : '') + '">' +
         '<span>' + acc(r.name) + '</span>' +
         '<span class="num">' + (isZero(r.off) ? '—' : signed(r.off) + '¢') + '</span>' +
         '<span class="tag">' + describeFifth(r.off) + '</span>' +
         '<span class="num">' + (r.beats < 0.05 ? '—' : r.beats.toFixed(1)) + '</span></div>'));
     h += '<p class="sheet-note">The last row closes the circle and is whatever the other eleven leave behind. ' +
-         'Beats are per second, for the lower note taken in the octave F3–E4, at the reference A set ' +
-         'below; a pure fifth does not beat. Taken as a fourth instead, an octave higher, the same ' +
-         'fifth beats exactly twice as fast.</p>';
+         'Beat rates are for the lower note taken in the octave F3–E4, at the reference A set below; ' +
+         'a pure fifth does not beat. Taken as a fourth instead, an octave higher, the same fifth ' +
+         'beats exactly twice as fast.</p>';
 
     h += '<h3 class="sheet-h">Major thirds</h3>';
     h += sheetTable(['Third', 'Off pure', '', ''], thirdRows().map(r =>
