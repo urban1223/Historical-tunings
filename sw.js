@@ -1,5 +1,5 @@
 // Bump to discard every previously cached response
-const CACHE_NAME = 'na-tuner-v16';
+const CACHE_NAME = 'na-tuner-v17';
 
 // Everything the app needs to open with no network at all
 const SHELL = [
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // tuner.html reads ?t=<slug> at runtime, so all twelve share one cache entry
+  // tuner.html reads ?t=<slug> at runtime, so every tuning shares one cache entry
   const key = url.origin + url.pathname;
 
   e.respondWith(

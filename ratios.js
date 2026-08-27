@@ -4,35 +4,57 @@
 // withAccidentals(), centsOf(), NOTE_NAMES and TUNINGS live in tunings.js
 
 // ---------------------------------------------------------------- interval names
-// Names follow the Huygens-Fokker list of intervals; anything not on it is left
-// unnamed. Where that list gives a plain name, "just" is prepended, since every one
-// of those also exists tempered elsewhere in this app.
+// Every ratio the two grids can reach, named from the Huygens-Fokker list of
+// intervals. Where that list gives a plain name, "just" is prepended, since every
+// one of those also exists tempered elsewhere in this app.
 const INTERVAL_NAMES = {
     '16/15': 'minor diatonic semitone',
     '15/14': 'major diatonic semitone',
+    '14/13': '2/3-tone',
+    '13/12': 'tridecimal 2/3-tone',
     '12/11': 'undecimal neutral second',
+    '11/10': 'Ptolemy’s second',
     '10/9':  'minor whole tone',
     '9/8':   'major whole tone',
     '8/7':   'septimal whole tone',
+    '15/13': 'tridecimal 5/4-tone',
     '7/6':   'septimal minor third',
+    '13/11': 'tridecimal minor third',
     '6/5':   'just minor third',
     '11/9':  'undecimal neutral third',
+    '16/13': 'tridecimal neutral third',
     '5/4':   'just major third',
+    '14/11': 'undecimal diminished fourth or major third',
     '9/7':   'septimal major third',
+    '13/10': 'tridecimal semi-diminished fourth',
     '4/3':   'just perfect fourth',
+    '15/11': 'undecimal augmented fourth',
     '11/8':  'undecimal semi-augmented fourth',
+    '18/13': 'tridecimal augmented fourth',
     '7/5':   'septimal or Huygens’ tritone',
     '10/7':  'Euler’s tritone',
+    '13/9':  'tridecimal diminished fifth',
+    '16/11': 'undecimal semi-diminished fifth',
+    '22/15': 'undecimal diminished fifth',
     '3/2':   'just perfect fifth',
+    '20/13': 'tridecimal semi-augmented fifth',
     '14/9':  'septimal minor sixth',
+    '11/7':  'undecimal augmented fifth',
     '8/5':   'just minor sixth',
     '13/8':  'tridecimal neutral sixth',
+    '18/11': 'undecimal neutral sixth',
     '5/3':   'just major sixth',
+    '22/13': 'tridecimal major sixth',
     '12/7':  'septimal major sixth',
+    '26/15': 'tridecimal semi-augmented sixth',
     '7/4':   'harmonic seventh',
     '16/9':  'Pythagorean minor seventh',
     '9/5':   'just minor seventh',
+    '20/11': 'large minor seventh',
     '11/6':  'undecimal neutral seventh',
+    '24/13': 'tridecimal neutral seventh',
+    '13/7':  '16/3-tone',
+    '28/15': 'grave major seventh',
     '15/8':  'classic major seventh'
 };
 
@@ -41,15 +63,33 @@ const OCT_AWAY  = ['', 'one octave', 'two octaves', 'three octaves', 'four octav
 
 // ---------------------------------------------------------------- state
 const MAX_HARMONIC = 16;
-const LOW_OCTAVE = 2, HIGH_OCTAVE = 7;      // an octave taller than the tuner, so the wide ratios mostly land on it
+// Four octaves either side of the middle, which is the reach of the two grids: from
+// the opening root, 1/16 lands on A0 and 16/1 on A8, both still drawn.
+const LOW_OCTAVE = 0, HIGH_OCTAVE = 8;
 
-let tuning = TUNING_BY_SLUG[new URLSearchParams(location.search).get('t')] || TUNINGS[0];
+// No ?t= is how the page opens from the home list; a ?t= naming nothing is a broken link
+const slug = new URLSearchParams(location.search).get('t');
+if (slug && !TUNING_BY_SLUG[slug]) throw new Error('no such tuning: ' + slug);
+
+let tuning = slug ? TUNING_BY_SLUG[slug] : TUNINGS[0];
 let num = 5, den = 4;
 // The root is 1/1 and carries the pitch, so changing what it is compared against
 // moves the keys under it and never the ratio itself. It opens on the reference
 // the rest of the app tunes to.
 let rootPc = 9, rootOctave = 4, rootFreq = 415;
 let upperVoice = 'pure';                    // 'pure' plays the ratio, 'key' plays the note it is nearest
+
+// The keyboard's own reach: one tap moves the root at most eight octaves, so a root
+// inside this range keeps every key it can reach inside it too.
+const ROOT_MIN = 16, ROOT_MAX = 8000;
+
+// The one way the root ever moves, so typing a frequency and tapping a key cannot
+// disagree about what is allowed
+function setRoot(freq, pc, octave) {
+    rootFreq = Math.min(ROOT_MAX, Math.max(ROOT_MIN, freq));
+    rootPc = pc;
+    rootOctave = octave;
+}
 
 const els = {
     figure: document.getElementById('ratio-figure'),
@@ -167,9 +207,7 @@ function makeKey(pc, octave, x, w, cls) {
     // Taken through the root it is leaving, so moving along the keyboard follows the
     // tuning's own intervals instead of dragging the old pitch onto the new note
     b.addEventListener('click', () => {
-        rootFreq = keyFreq(pc, octave);
-        rootPc = pc;
-        rootOctave = octave;
+        setRoot(keyFreq(pc, octave), pc, octave);
         els.rootHz.value = rootFreq.toFixed(2);
         render();
     });
@@ -194,10 +232,16 @@ function measureKeys() {
     keyStops.sort((a, b) => a.abs - b.abs);
 }
 
+// Past either end there is no key to interpolate against, so the marker is pinned to
+// the edge and dimmed rather than dropped — vanishing reads as a bug, not as a limit.
+const offKeyboard = abs => abs < keyStops[0].abs || abs > keyStops[keyStops.length - 1].abs;
+
 // Straight interpolation between the two keys it falls between: a ratio that lands
 // nowhere near a key has to be drawn nowhere near one.
 function markerX(abs) {
-    if (abs < keyStops[0].abs || abs > keyStops[keyStops.length - 1].abs) return null;
+    const last = keyStops[keyStops.length - 1];
+    if (abs <= keyStops[0].abs) return keyStops[0].x;
+    if (abs >= last.abs) return last.x;
     for (let i = 0; i < keyStops.length - 1; i++) {
         const lo = keyStops[i], hi = keyStops[i + 1];
         if (abs <= hi.abs) {
@@ -205,7 +249,7 @@ function markerX(abs) {
             return lo.x + t * (hi.x - lo.x);
         }
     }
-    return keyStops[keyStops.length - 1].x;
+    throw new Error('inside the keyboard but between no two keys: ' + abs);
 }
 
 // Only when it has gone out of sight, so a deliberate scroll is not fought. Held
@@ -349,11 +393,10 @@ function render() {
     });
 
     const x = markerX(targetAbs);
-    els.marker.hidden = x === null;
-    if (x !== null) {
-        els.marker.style.left = x + 'px';
-        revealMarker(x);
-    }
+    els.marker.hidden = false;
+    els.marker.classList.toggle('off', offKeyboard(targetAbs));
+    els.marker.style.left = x + 'px';
+    revealMarker(x);
 
     [els.harmNum, els.harmDen].forEach((grid, i) => {
         const chosen = i === 0 ? num : den;
@@ -396,7 +439,7 @@ els.tuningPick.addEventListener('change', () => {
 });
 // Not written back while it is being typed in, so the caret is left alone
 els.rootHz.addEventListener('input', () => {
-    rootFreq = Math.min(4000, Math.max(20, parseFloat(els.rootHz.value) || rootFreq));
+    setRoot(parseFloat(els.rootHz.value) || rootFreq, rootPc, rootOctave);
     render();
 });
 els.soundBtn.addEventListener('click', toggleSound);

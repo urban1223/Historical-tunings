@@ -1,8 +1,8 @@
 // ♯ and ♭ as artwork rather than font glyphs, so they render identically on
-// every device. They inherit currentColor.
+// every device. They inherit currentColor, and carry the word a reader announces.
 const ACCIDENTAL_SVG = {
-    '♯': '<svg class="{cls}" viewBox="0 0 64 100" fill="currentColor" aria-hidden="true"><path d="M4 43 L60 30 L60 47 L4 60 Z"/><path d="M4 69 L60 56 L60 73 L4 86 Z"/><rect x="18" y="6" width="5.5" height="88"/><rect x="41" y="1" width="5.5" height="88"/></svg>',
-    '♭': '<svg class="{cls}" viewBox="0 0 48 100" fill="currentColor" aria-hidden="true"><rect x="11" y="1" width="5.5" height="94"/><path d="M16.5 50 C 31 39, 46 49, 42.5 68 C 39 86, 25 92, 16.5 97 Z"/></svg>'
+    '♯': '<svg class="{cls}" viewBox="0 0 64 100" fill="currentColor" role="img" aria-label="sharp"><path d="M4 43 L60 30 L60 47 L4 60 Z"/><path d="M4 69 L60 56 L60 73 L4 86 Z"/><rect x="18" y="6" width="5.5" height="88"/><rect x="41" y="1" width="5.5" height="88"/></svg>',
+    '♭': '<svg class="{cls}" viewBox="0 0 48 100" fill="currentColor" role="img" aria-label="flat"><rect x="11" y="1" width="5.5" height="94"/><path d="M16.5 50 C 31 39, 46 49, 42.5 68 C 39 86, 25 92, 16.5 97 Z"/></svg>'
 };
 
 // Turns a note name like "C♯" into markup with the accidental as inline SVG
@@ -79,9 +79,13 @@ const NOTE_NAMES = new Array(12);
 for (let pos = -3; pos <= 8; pos++) NOTE_NAMES[pitchClass(pos)] = nameAt(pos);
 
 // ---------------------------------------------------------------- temperaments
-const QUARTER       = SYNTONIC_COMMA / 4;
-const QUARTER_COMMA = everyFifth(QUARTER);
-const SIXTH_COMMA   = everyFifth(SYNTONIC_COMMA / 6);
+const QUARTER           = SYNTONIC_COMMA / 4;
+const QUARTER_COMMA     = everyFifth(QUARTER);
+const TWO_SEVENTH_COMMA = everyFifth(2 * SYNTONIC_COMMA / 7);
+const SIXTH_COMMA       = everyFifth(SYNTONIC_COMMA / 6);
+
+// Twelve of these close seven octaves exactly, which is the whole of equal temperament
+const EQUAL_COMMA = everyFifth(PYTHAGOREAN_COMMA / 12);
 
 // Violin open strings are pure fifths, so the two share one frozen table
 const PURE_CHAIN = Object.freeze(fromFifths(everyFifth(0)));
@@ -108,7 +112,18 @@ const TUNINGS = [
         cents: PURE_CHAIN
     },
     {
-        slug: 'meantone4', name: 'Meantone ¼', group: 'Meantone',
+        slug: 'meantone27', name: 'Meantone 2/7', group: 'Meantone',
+        note: 'Fifths narrowed hard, leaving major and minor thirds equally off.',
+        about: [
+            'Every fifth gives up two sevenths of the syntonic comma — more than quarter-comma takes, and enough that no fifth and no third comes out pure. What it buys is symmetry: major thirds land 3.1¢ narrow and minor thirds 3.1¢ narrow as well, a seventh of the comma each, so both are wrong by exactly the same amount. The one interval it does leave pure is the chromatic semitone, C–C♯ and its four kin, at exactly 25/24.',
+            'Eleven fifths tempered that hard leave a great deal for the twelfth. G♯–E♭ comes out 44.1¢ wide, the largest wolf of anything here, and the four thirds that cross it go with it.'
+        ],
+        source: '2/7-comma meantone, Zarlino’s temperament (1558) — mean2sev.scl, Scala archive',
+        cents: fromFifths(TWO_SEVENTH_COMMA),
+        enharmonic: enharmonicsOf(TWO_SEVENTH_COMMA)
+    },
+    {
+        slug: 'meantone4', name: 'Meantone 1/4', group: 'Meantone',
         note: 'Fifths narrowed by a quarter comma, giving pure major thirds.',
         about: [
             'Every fifth is narrowed by a quarter of the syntonic comma — the exact amount that lands four stacked fifths on a pure major third. Eight of the twelve thirds come out pure.',
@@ -119,7 +134,7 @@ const TUNINGS = [
         enharmonic: enharmonicsOf(QUARTER_COMMA)
     },
     {
-        slug: 'meantone6', name: 'Meantone ⅙', group: 'Meantone',
+        slug: 'meantone6', name: 'Meantone 1/6', group: 'Meantone',
         note: 'A milder meantone; thirds slightly wide, fifths less narrow.',
         about: [
             'The same construction as quarter-comma, but each fifth gives up only a sixth of the syntonic comma. Thirds come out 7.2¢ wide instead of pure, and the fifths sit much closer to pure.',
@@ -220,7 +235,7 @@ const TUNINGS = [
     },
     {
         slug: 'vallotti', name: 'Vallotti', group: 'Well',
-        // "A sixth comma" is the Pythagorean one here, 3.910¢; Meantone ⅙ uses the
+        // "A sixth comma" is the Pythagorean one here, 3.910¢; Meantone 1/6 uses the
         // same words for the syntonic, 3.584¢.
         note: 'Six fifths narrowed by a sixth comma, the rest left pure.',
         about: [
@@ -232,6 +247,16 @@ const TUNINGS = [
             'F-C': PYTHAGOREAN_COMMA / 6, 'C-G': PYTHAGOREAN_COMMA / 6, 'G-D': PYTHAGOREAN_COMMA / 6,
             'D-A': PYTHAGOREAN_COMMA / 6, 'A-E': PYTHAGOREAN_COMMA / 6, 'E-B': PYTHAGOREAN_COMMA / 6
         }))
+    },
+    {
+        slug: 'equal', name: 'Equal Temperament', group: 'Modern',
+        note: 'Twelve identical steps — every key alike, nothing pure.',
+        about: [
+            'Every fifth is narrowed by a twelfth of the Pythagorean comma, which is exactly the amount that lets twelve of them close seven octaves. The chain therefore has no end and no wolf: all twelve steps come out at 100¢, and any key sounds like any other.',
+            'Nothing in it is pure. The fifths are only 2¢ narrow, which is hard to hear, but the major thirds are 13.7¢ wide — better than the Pythagorean third, worse than any central-key third in the meantone and well temperaments above. The minor thirds go the other way: at 15.6¢ narrow they beat what Kirnberger, Werckmeister, Aron–Neidhardt and Vallotti leave on C. It is here as a ruler for the rest.'
+        ],
+        source: 'Twelve equal divisions of the octave: every step is exactly 100¢ by definition, so there is no table to transcribe.',
+        cents: fromFifths(EQUAL_COMMA)
     }
 ];
 

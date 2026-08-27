@@ -564,6 +564,8 @@ body.home .stage { justify-content: flex-start; }
     border-bottom: 1px solid var(--edge-soft);
     min-height: 44px;
 }
+/* Whatever follows a list — the next group label, or the footer — brings its own edge */
+.tuning-link:last-child { border-bottom: none; }
 .tuning-link:active { background: rgba(242, 204, 90, 0.13); }
 .tuning-link .t-name {
     font-size: 17px;
@@ -861,7 +863,7 @@ body.ratios .stage { justify-content: flex-start; }
 .harm-btn {
     -webkit-appearance: none;
     appearance: none;
-    min-height: 34px;
+    min-height: 44px;
     padding: 0;
     background: var(--well);
     border: 1px solid var(--edge-soft);
@@ -954,6 +956,8 @@ body.ratios .stage { justify-content: flex-start; }
     border-top: 9px solid var(--gold);
 }
 .kb-marker[hidden] { display: none; }
+/* Pinned to the edge because the ratio lands past it, so it is drawn as an estimate */
+.kb-marker.off { opacity: 0.45; }
 
 .wkey.root {
     background: linear-gradient(180deg, var(--green) 0%, var(--green-deep) 100%);

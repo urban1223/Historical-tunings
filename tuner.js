@@ -4,8 +4,11 @@
 // withAccidentals() and the ♯/♭ artwork live in tunings.js, shared with the picker
 
 // ---------------------------------------------------------------- which tuning
+// The page is only ever reached from a link that names its tuning, so a missing or
+// unknown one is a broken link and not something to paper over
 const slug = new URLSearchParams(location.search).get('t');
-const tuning = TUNING_BY_SLUG[slug] || TUNINGS[0];
+const tuning = TUNING_BY_SLUG[slug];
+if (!tuning) throw new Error('no such tuning: ' + slug);
 
 const baseCents = tuning.cents.slice();
 const noteNames = NOTE_NAMES.slice();
@@ -476,17 +479,19 @@ const CHAIN_POS = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8];   // E♭ up to G♯
 // Tying the test to the display stops it printing +0.0¢ and withholding "pure".
 const isZero = v => Math.round(v * 10) === 0;
 
-// Naming the comma claims the temperament was built that way, so it needs a far
-// tighter fit: at one decimal an accidental 5.391 and a real 5.377 both read 5.4.
-const EXACT = 0.005;
+// Naming the comma claims the temperament was built that way, so the fit has to be
+// exact: a twelfth of the Pythagorean comma sits only 0.0013¢ from the schisma.
+const EXACT = 0.0005;
 
 // Named amounts a fifth may be tempered by, so the table can say how the
 // temperament was built and not only by how much.
 const COMMA_NAMES = [
-    [SYNTONIC_COMMA / 4,    '¼ synt. comma'],
-    [SYNTONIC_COMMA / 6,    '⅙ synt. comma'],
-    [PYTHAGOREAN_COMMA / 4, '¼ Pyth. comma'],
-    [PYTHAGOREAN_COMMA / 6, '⅙ Pyth. comma'],
+    [2 * SYNTONIC_COMMA / 7, '2/7 synt. comma'],
+    [SYNTONIC_COMMA / 4,    '1/4 synt. comma'],
+    [SYNTONIC_COMMA / 6,    '1/6 synt. comma'],
+    [PYTHAGOREAN_COMMA / 4, '1/4 Pyth. comma'],
+    [PYTHAGOREAN_COMMA / 6, '1/6 Pyth. comma'],
+    [PYTHAGOREAN_COMMA / 12, '1/12 Pyth. comma'],
     [SCHISMA,               'schisma'],
     [SYNTONIC_COMMA,        'synt. comma'],
     [PYTHAGOREAN_COMMA,     'Pyth. comma']

@@ -66,7 +66,8 @@
     <section class="controls">
         <div class="field">
             <label for="root-hz" id="root-hz-label">Root</label>
-            <input type="number" id="root-hz" value="415" step="any" min="20" max="4000" inputmode="decimal">
+            <!-- Range is the keyboard's own reach, so tapping a key can never leave it -->
+            <input type="number" id="root-hz" value="415" step="any" min="16" max="8000" inputmode="decimal">
         </div>
         <div class="field">
             <label for="wave-type">Waveform</label>
@@ -87,12 +88,18 @@
     tuning you pick puts its nearest note, and every tuning in the list is a fixed set of twelve, which is
     why none of them can hold more than a handful of these ratios.</p>
 
-    <p class="sheet-note">The root is 1/1 and carries the pitch, so the ratio never moves when you change
-    the tuning — the keys move under it instead. The keyboard is a ruler here, not an instrument: every key
-    is drawn and priced at the tuning's own interval from the root.</p>
+    <p class="sheet-note">Only the root has a frequency of its own — type one, or tap a key to move it.
+    Every other key is then priced from the root by the tuning you picked: take the cents that tuning gives
+    the key, subtract the cents it gives the root, add 1200 for each octave between them. So an E above a
+    415 Hz A is 702¢ and 622.5 Hz in Pythagorean, but 696.6¢ and 620.6 Hz in Meantone 1/4 — same root, same
+    key, different tuning.</p>
+
+    <p class="sheet-note">That is why the keyboard is a ruler here and not an instrument, and why tapping a
+    key sets the root instead of sounding it. The ratio never moves when you change tuning; the keys move
+    under it. Where the ratio lands past the last drawn key the marker is pinned to the edge and dimmed.</p>
 
     <p class="sheet-note">Interval names follow the list of intervals compiled by the Huygens-Fokker
-    Foundation; a ratio absent from it is left unnamed.</p>
+    Foundation, which covers every ratio these two grids can reach.</p>
 
     <section class="keyboard-wrap">
         <div class="kb-head">
