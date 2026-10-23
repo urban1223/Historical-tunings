@@ -385,6 +385,8 @@
         const accidental = name.slice(1);
         const letter = name[0];
         if (noteNaming === 'solfege') return solfege[letter] + accidental;
+        if (language === 'sl' && name === 'B') return 'h';
+        if (language === 'sl' && name === 'B♭') return 'b';
         return suffixes[name] || letter;
     };
     window.APP_NOTE_NAMING = noteNaming;
