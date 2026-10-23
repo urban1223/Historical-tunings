@@ -98,7 +98,8 @@ function renderNote(name) {
         els.note.innerHTML = '<span class="note-idle"></span>';
         return;
     }
-    els.note.innerHTML = withAccidentals(formatNoteName(name));
+    els.note.innerHTML = '<span class="note-letter">' +
+        withAccidentals(formatNoteName(name)) + '</span>';
 }
 
 // ---------------------------------------------------------------- enharmonics
@@ -112,7 +113,7 @@ function renderEnharmonics() {
             const b = document.createElement('button');
             b.type = 'button';
             b.className = 'enh-btn' + (oi === 0 ? ' active' : '');
-            b.innerHTML = withAccidentals(formatNoteName(opt.label), 'accidental');
+            b.innerHTML = withAccidentals(opt.label, 'accidental');
             b.addEventListener('click', () => {
                 noteNames[group.idx] = opt.label;
                 baseCents[group.idx] = opt.cents;
