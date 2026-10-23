@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Settings — Historical Tunings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141b29">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="doc">
+<main class="stage grain">
+    <header class="stage-head">
+        <a class="back" href="index.html?pick=1" data-i18n="all">← All</a>
+        <h1 class="tuning-name" data-i18n="settings">Settings</h1>
+    </header>
+    <div class="rule"></div>
+    <div class="about settings">
+        <h2 class="sheet-h" data-i18n="language">Language</h2>
+        <p class="sheet-p" data-i18n="chooseLanguage">Choose the language used by the app.</p>
+        <div class="field">
+            <label for="language-pick" data-i18n="language">Language</label>
+            <select id="language-pick">
+                <option value="en" data-language-option="en">English</option>
+                <option value="sl" data-language-option="sl">Slovenščina</option>
+                <option value="de" data-language-option="de">Deutsch</option>
+                <option value="es" data-language-option="es">Español</option>
+            </select>
+        </div>
+        <p class="sheet-note" data-i18n="save">Language is saved on this device.</p>
+    </div>
+</main>
+<script src="i18n.js"></script>
+<script>
+    const languagePick = document.getElementById('language-pick');
+    languagePick.value = APP_LANGUAGE;
+    languagePick.addEventListener('change', () => setAppLanguage(languagePick.value));
+</script>
+</body>
+</html>

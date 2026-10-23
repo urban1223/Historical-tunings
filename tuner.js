@@ -252,7 +252,7 @@ function stopMic() {
     if (highPass) { highPass.disconnect(); highPass = null; }
     if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
     els.micBtn.classList.remove('live');
-    els.micLabel.textContent = 'Turn on microphone';
+    els.micLabel.textContent = t('turnOn');
     resetReadout();
 }
 
@@ -306,7 +306,7 @@ async function startMic(silent) {
         els.micBtn.classList.add('live');
         lastDetect = 0;
         detectTimer = setInterval(detect, DETECT_MS);
-        els.micLabel.textContent = 'Listening';
+        els.micLabel.textContent = t('listening');
         requestAnimationFrame(loop);
     } catch (e) {
         const msg = {

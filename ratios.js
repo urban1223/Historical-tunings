@@ -332,7 +332,7 @@ function toggleSound() {
     ensureAudio();
     playing = !playing;
     els.soundBtn.classList.toggle('live', playing);
-    els.soundBtn.textContent = playing ? 'Stop' : 'Play';
+    els.soundBtn.textContent = playing ? t('stop') : t('play');
     render();
 
     const t = audioCtx.currentTime;
@@ -357,7 +357,7 @@ function render() {
     const near = nearestKey(targetAbs);
     const nearFreq = keyFreq(near.pc, near.octave);
 
-    els.rootHzLabel.innerHTML = 'Root ' + withAccidentals(NOTE_NAMES[rootPc], 'sheet-acc') + rootOctave + ' (Hz)';
+    els.rootHzLabel.innerHTML = t('root') + ' ' + withAccidentals(NOTE_NAMES[rootPc], 'sheet-acc') + rootOctave + ' (Hz)';
 
     els.figure.innerHTML = '<span class="r-num">' + rn + '</span>' +
                            '<span class="r-bar">/</span>' +
@@ -383,7 +383,7 @@ function render() {
     // Signed from the key, not from the ratio, so a wide temperament reads positive
     // the way the tuner's own tables report it
     els.voiceKeyOff.textContent = exact
-        ? 'pure'
+        ? t('pure')
         : signed(-near.off) + '¢ · ' + Math.abs(rn * rootFreq - rd * nearFreq).toFixed(1) + '/s';
     els.voiceKeyOff.classList.toggle('exact', exact);
 

@@ -20,9 +20,9 @@
 <main class="stage grain">
 
     <header class="stage-head">
-        <a class="back" href="index.html?pick=1">← All</a>
+        <a class="back" href="index.html?pick=1" data-i18n="all">← All</a>
         <h1 class="tuning-name">Pure Ratios</h1>
-        <p class="tuning-note">Build a whole-number ratio, hear it against a root, and see where it falls
+        <p class="tuning-note" data-i18n="pureRatiosNote">Build a whole-number ratio, hear it against a root, and see where it falls
         between the keys.</p>
     </header>
 
@@ -36,20 +36,20 @@
 
     <section class="harm-picker">
         <div class="harm-row">
-            <span class="harm-label">Upper harmonic</span>
+            <span class="harm-label" data-i18n="upperHarmonic">Upper harmonic</span>
             <div class="harm-grid" id="harm-num"></div>
         </div>
         <div class="harm-row">
-            <span class="harm-label">Lower harmonic</span>
+            <span class="harm-label" data-i18n="lowerHarmonic">Lower harmonic</span>
             <div class="harm-grid" id="harm-den"></div>
         </div>
     </section>
 
     <section class="voice-row">
-        <span class="harm-label">Sound the upper note as</span>
+        <span class="harm-label" data-i18n="soundUpper">Sound the upper note as</span>
         <div class="enh-pair" id="voice-pick">
             <button class="enh-btn active" type="button" data-voice="pure">
-                <span class="voice-sys">Just intonation</span>
+                <span class="voice-sys" data-i18n="justIntonation">Just intonation</span>
                 <span class="voice-val" id="voice-pure-val">—</span>
                 <span class="voice-off">pure</span>
             </button>
@@ -61,25 +61,25 @@
         </div>
     </section>
 
-    <button class="sound-btn" id="sound-btn" type="button">Play</button>
+    <button class="sound-btn" id="sound-btn" type="button" data-i18n="play">Play</button>
 
     <section class="controls">
         <div class="field">
-            <label for="root-hz" id="root-hz-label">Root</label>
+            <label for="root-hz" id="root-hz-label" data-i18n="root">Root</label>
             <!-- Range is the keyboard's own reach, so tapping a key can never leave it -->
             <input type="number" id="root-hz" value="415" step="any" min="16" max="8000" inputmode="decimal">
         </div>
         <div class="field">
-            <label for="wave-type">Waveform</label>
+            <label for="wave-type" data-i18n="waveform">Waveform</label>
             <!-- Sawtooth first: only a waveform with even harmonics beats at these intervals -->
             <select id="wave-type">
-                <option value="sawtooth" selected>Sawtooth</option>
-                <option value="triangle">Triangle</option>
-                <option value="sine">Sine</option>
+                <option value="sawtooth" selected data-i18n="sawtooth">Sawtooth</option>
+                <option value="triangle" data-i18n="triangle">Triangle</option>
+                <option value="sine" data-i18n="sine">Sine</option>
             </select>
         </div>
         <div class="field field-wide">
-            <label for="tuning-pick">Compare against</label>
+            <label for="tuning-pick" data-i18n="compareAgainst">Compare against</label>
             <select id="tuning-pick"></select>
         </div>
     </section>
@@ -103,7 +103,7 @@
 
     <section class="keyboard-wrap">
         <div class="kb-head">
-            <span>Tap a key to set the root</span>
+            <span data-i18n="tapRoot">Tap a key to set the root</span>
         </div>
         <div class="kb-scroll" id="kb-scroll">
             <div class="keyboard" id="kb">
@@ -114,6 +114,7 @@
 
 </main>
 
+<script src="i18n.js"></script>
 <script src="tunings.js"></script>
 <script src="ratios.js"></script>
 </body>
