@@ -9,6 +9,7 @@
 const slug = new URLSearchParams(location.search).get('t');
 const tuning = TUNING_BY_SLUG[slug];
 if (!tuning) throw new Error('no such tuning: ' + slug);
+localStorage.setItem('historical-tunings:last-tuning', tuning.slug);
 
 const baseCents = tuning.cents.slice();
 const noteNames = NOTE_NAMES.slice();
@@ -638,6 +639,8 @@ requestAnimationFrame(() => {
     const perOctave = WHITE_PC.length * WK_W;
     els.kbScroll.scrollLeft = (REF_OCTAVE - LOW_OCTAVE) * perOctave - perOctave * 0.25;
 });
+
+startMic(true);
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
