@@ -4,6 +4,11 @@
     const translations = {
         en: {
             appName: 'Historical Tunings', association: 'Društvo Nova Akademija',
+            credits: 'Credits', methodSources: 'Method and sources', openSource: 'Open source',
+            aboutPrivacy: 'Everything runs on the device. Nothing is recorded and nothing leaves the phone; the last tuner you used is stored locally so the app can reopen it next time. Once the app has opened it needs no network at all.',
+            aboutMethod: 'Pitch is found with the McLeod Pitch Method: Philip McLeod and Geoff Wyvill, <em>A Smarter Way to Find Pitch</em>, Proceedings of the International Computer Music Conference, 2005.',
+            aboutScala: 'The tuning tables were checked against the Scala scale archive compiled by Manuel Op de Coul, <a href="https://www.huygens-fokker.org/scala/">huygens-fokker.org/scala</a>. Each temperament names its own source on its information panel.',
+            aboutIntervals: 'Interval names on the Pure Ratios page follow the list of intervals compiled by the same foundation, <a href="https://www.huygens-fokker.org/docs/intervals.html">huygens-fokker.org/docs/intervals</a>. That list covers every ratio the page can build.',
             all: 'All', about: 'About', settings: 'Settings', explore: 'Explore',
             pureRatios: 'Pure Ratios',
             pureRatiosNote: 'Just intonation as ratios rather than twelve fixed notes — build one, hear it, and see where it falls between the keys.',
@@ -30,6 +35,11 @@
         },
         sl: {
             appName: 'Zgodovinske uglasitve', association: 'Društvo Nova Akademija',
+            credits: 'Sodelujoči', methodSources: 'Metoda in viri', openSource: 'Odprta koda',
+            aboutPrivacy: 'Vse deluje na napravi. Nič se ne snema in nič ne zapusti telefona; zadnja uporabljena uglasitev se shrani lokalno, da jo lahko aplikacija naslednjič znova odpre. Ko je aplikacija odprta, ne potrebuje omrežne povezave.',
+            aboutMethod: 'Višino tona določamo z metodo McLeod Pitch Method, ki sta jo razvila Philip McLeod in Geoff Wyvill, <em>A Smarter Way to Find Pitch</em>, Proceedings of the International Computer Music Conference, 2005.',
+            aboutScala: 'Tabele uglasitev so bile preverjene v arhivu lestvic Scala, ki ga je pripravil Manuel Op de Coul, <a href="https://www.huygens-fokker.org/scala/">huygens-fokker.org/scala</a>. Vsaka uglasitev ima svoj vir naveden v informacijskem panelu.',
+            aboutIntervals: 'Imena intervalov na strani Čista razmerja sledijo seznamu, ki ga je pripravila ista ustanova, <a href="https://www.huygens-fokker.org/docs/intervals.html">huygens-fokker.org/docs/intervals</a>. Seznam zajema vsa razmerja, ki jih lahko ustvari stran.',
             all: 'Vse', about: 'O aplikaciji', settings: 'Nastavitve', explore: 'Razišči',
             pureRatios: 'Čista razmerja',
             pureRatiosNote: 'Čista intonacija kot razmerja namesto dvanajstih fiksnih tonov — sestavi razmerje, ga poslušaj in preveri njegov položaj med tipkami.',
@@ -56,6 +66,11 @@
         },
         de: {
             appName: 'Historische Stimmungen', association: 'Društvo Nova Akademija',
+            credits: 'Mitwirkende', methodSources: 'Methode und Quellen', openSource: 'Open Source',
+            aboutPrivacy: 'Alles läuft auf dem Gerät. Nichts wird aufgezeichnet und nichts verlässt das Telefon; die zuletzt verwendete Stimmung wird lokal gespeichert, damit die App sie beim nächsten Mal wieder öffnen kann. Nach dem Öffnen benötigt die App kein Netzwerk.',
+            aboutMethod: 'Die Tonhöhe wird mit der McLeod-Pitch-Methode von Philip McLeod und Geoff Wyvill bestimmt, <em>A Smarter Way to Find Pitch</em>, Proceedings of the International Computer Music Conference, 2005.',
+            aboutScala: 'Die Stimmungstabellen wurden mit dem von Manuel Op de Coul zusammengestellten Scala-Skalenarchiv abgeglichen, <a href="https://www.huygens-fokker.org/scala/">huygens-fokker.org/scala</a>. Jede Stimmung nennt ihre eigene Quelle im Informationsfeld.',
+            aboutIntervals: 'Die Intervallnamen auf der Seite Reine Verhältnisse folgen der von derselben Stiftung zusammengestellten Liste, <a href="https://www.huygens-fokker.org/docs/intervals.html">huygens-fokker.org/docs/intervals</a>. Sie deckt jedes Verhältnis ab, das die Seite erzeugen kann.',
             all: 'Alle', about: 'Über die App', settings: 'Einstellungen', explore: 'Entdecken',
             pureRatios: 'Reine Verhältnisse',
             pureRatiosNote: 'Reine Intonation als Verhältnisse statt zwölf fester Töne — erstelle ein Verhältnis, höre es und sieh seine Position zwischen den Tasten.',
@@ -82,6 +97,11 @@
         },
         es: {
             appName: 'Afinaciones históricas', association: 'Društvo Nova Akademija',
+            credits: 'Colaboradores', methodSources: 'Método y fuentes', openSource: 'Código abierto',
+            aboutPrivacy: 'Todo funciona en el dispositivo. No se graba nada y nada sale del teléfono; la última afinación usada se guarda localmente para que la aplicación pueda abrirla de nuevo la próxima vez. Una vez abierta, la aplicación no necesita conexión.',
+            aboutMethod: 'La altura se obtiene con el método McLeod Pitch Method de Philip McLeod y Geoff Wyvill, <em>A Smarter Way to Find Pitch</em>, Proceedings of the International Computer Music Conference, 2005.',
+            aboutScala: 'Las tablas de afinación se comprobaron con el archivo de escalas Scala recopilado por Manuel Op de Coul, <a href="https://www.huygens-fokker.org/scala/">huygens-fokker.org/scala</a>. Cada afinación indica su propia fuente en el panel informativo.',
+            aboutIntervals: 'Los nombres de los intervalos de la página Relaciones puras siguen la lista compilada por la misma fundación, <a href="https://www.huygens-fokker.org/docs/intervals.html">huygens-fokker.org/docs/intervals</a>. La lista cubre todas las relaciones que puede construir la página.',
             all: 'Todo', about: 'Acerca de', settings: 'Ajustes', explore: 'Explorar',
             pureRatios: 'Relaciones puras',
             pureRatiosNote: 'Entonación justa como relaciones en lugar de doce notas fijas: crea una, escúchala y comprueba dónde queda entre las teclas.',
@@ -370,6 +390,9 @@
         );
         document.querySelectorAll('[data-i18n]').forEach(el => {
             el.textContent = tr(el.dataset.i18n);
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(el => {
+            el.innerHTML = tr(el.dataset.i18nHtml);
         });
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             el.placeholder = tr(el.dataset.i18nPlaceholder);

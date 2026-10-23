@@ -20,7 +20,6 @@
 <main class="stage grain">
 
     <header class="masthead">
-        <img class="academy-logo" src="logo-C2zvyliW.png" alt="Nova Akademija">
         <h1 data-i18n="appName">Historical Tunings</h1>
     </header>
 
@@ -85,18 +84,6 @@
     renderList();
     document.addEventListener('app-language-changed', renderList);
 
-    if (!pickerMode && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const title = document.querySelector('.masthead h1');
-        let userMoved = false;
-        const stopIntro = () => { userMoved = true; };
-        window.addEventListener('wheel', stopIntro, { once: true, passive: true });
-        window.addEventListener('touchstart', stopIntro, { once: true, passive: true });
-        window.setTimeout(() => {
-            if (userMoved || !title) return;
-            const top = title.getBoundingClientRect().top + window.scrollY - 12;
-            window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-        }, 1400);
-    }
 })();
 
 if ('serviceWorker' in navigator) {

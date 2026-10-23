@@ -512,12 +512,6 @@ body::after {
 body.home .stage { justify-content: flex-start; }
 
 .masthead { text-align: center; padding: 18px 0 6px; }
-.academy-logo {
-    display: block;
-    width: min(240px, 78%);
-    height: auto;
-    margin: 0 auto 18px;
-}
 .masthead h1 {
     font-size: 28px;
     font-weight: 800;
@@ -743,6 +737,12 @@ html.sheet-open { overflow: hidden; }
 /* Borrows the sheet's prose classes, so the page reads as the same kind of
    document as a temperament's information panel */
 .about { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.about-logo {
+    display: block;
+    width: min(220px, 76%);
+    height: auto;
+    margin: 34px auto 8px;
+}
 .about p a { color: var(--text-soft); text-decoration: none; border-bottom: 1px solid var(--edge); }
 .about em { color: var(--text); font-style: italic; }
 
