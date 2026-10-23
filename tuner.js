@@ -9,6 +9,7 @@
 const slug = new URLSearchParams(location.search).get('t');
 const tuning = TUNING_BY_SLUG[slug];
 if (!tuning) throw new Error('no such tuning: ' + slug);
+const localizedTuningData = localizedTuning(tuning);
 localStorage.setItem('historical-tunings:last-tuning', tuning.slug);
 
 const baseCents = tuning.cents.slice();
@@ -37,9 +38,9 @@ const els = {
     sheetClose: document.getElementById('sheet-close')
 };
 
-document.title = tuning.name + ' — Historical Tunings';
-els.name.innerHTML = withAccidentals(tuning.name);
-els.blurb.textContent = tuning.note;
+document.title = localizedTuningData.name + ' — Historical Tunings';
+els.name.innerHTML = withAccidentals(localizedTuningData.name);
+els.blurb.textContent = localizedTuningData.note;
 
 // ---------------------------------------------------------------- pitch model
 const REF_OCTAVE = 4;          // the octave in which A equals the reference
@@ -552,7 +553,7 @@ function sheetTable(head, rows) {
 
 function renderSheet() {
     const acc = s => withAccidentals(s, 'sheet-acc');
-    let h = tuning.about.map(p => '<p class="sheet-p">' + acc(p) + '</p>').join('');
+    let h = localizedTuningData.about.map(p => '<p class="sheet-p">' + acc(p) + '</p>').join('');
 
     h += '<h3 class="sheet-h">The chain of fifths</h3>';
     h += sheetTable(['Fifth', 'Off pure', 'Tempered by', 'Beats/s'], fifthRows().map(r =>
@@ -575,7 +576,7 @@ function renderSheet() {
     h += '<p class="sheet-note">Roots run in chain order, from the flat end of the chain to the sharp end. ' +
          'A pure major third is 386.31¢.</p>';
 
-    if (tuning.source) h += '<p class="sheet-src">' + tuning.source + '</p>';
+    if (localizedTuningData.source) h += '<p class="sheet-src">' + localizedTuningData.source + '</p>';
     els.sheetBody.innerHTML = h;
 }
 
@@ -625,7 +626,7 @@ document.addEventListener('keydown', e => {
 });
 els.waveType.addEventListener('change', setDroneWave);
 
-els.sheetTitle.innerHTML = withAccidentals(tuning.name);
+els.sheetTitle.innerHTML = withAccidentals(localizedTuningData.name);
 buildGauge();
 const needleGroup = document.getElementById('needle-group');
 const needlePath = document.getElementById('needle');

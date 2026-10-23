@@ -378,7 +378,7 @@ function render() {
     // far that sits from the ratio. A mistuned rn/rd beats where its partials should
     // have coincided: the root's rn-th against the upper's rd-th.
     els.voicePureVal.textContent = rn + '/' + rd;
-    els.voiceKeySys.textContent = tuning.name;
+    els.voiceKeySys.textContent = localizedTuning(tuning).name;
     els.voiceKeyVal.innerHTML = withAccidentals(NOTE_NAMES[near.pc], 'accidental') + near.octave;
     // Signed from the key, not from the ratio, so a wide temperament reads positive
     // the way the tuner's own tables report it
@@ -427,7 +427,7 @@ buildHarmonics(els.harmDen, n => { den = n; });
 TUNINGS.forEach(t => {
     const o = document.createElement('option');
     o.value = t.slug;
-    o.textContent = t.name;
+    o.textContent = localizedTuning(t).name;
     o.selected = t === tuning;
     els.tuningPick.appendChild(o);
 });
