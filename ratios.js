@@ -424,12 +424,20 @@ function buildHarmonics(grid, apply) {
 buildHarmonics(els.harmNum, n => { num = n; });
 buildHarmonics(els.harmDen, n => { den = n; });
 
-TUNINGS.forEach(t => {
-    const o = document.createElement('option');
-    o.value = t.slug;
-    o.textContent = localizedTuning(t).name;
-    o.selected = t === tuning;
-    els.tuningPick.appendChild(o);
+function renderTuningOptions() {
+    els.tuningPick.innerHTML = '';
+    TUNINGS.forEach(tuningOption => {
+        const o = document.createElement('option');
+        o.value = tuningOption.slug;
+        o.textContent = localizedTuning(tuningOption).name;
+        o.selected = tuningOption === tuning;
+        els.tuningPick.appendChild(o);
+    });
+}
+renderTuningOptions();
+document.addEventListener('app-language-changed', () => {
+    renderTuningOptions();
+    render();
 });
 
 els.tuningPick.addEventListener('change', () => {

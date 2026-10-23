@@ -9,7 +9,7 @@
 const slug = new URLSearchParams(location.search).get('t');
 const tuning = TUNING_BY_SLUG[slug];
 if (!tuning) throw new Error('no such tuning: ' + slug);
-const localizedTuningData = localizedTuning(tuning);
+let localizedTuningData = localizedTuning(tuning);
 localStorage.setItem('historical-tunings:last-tuning', tuning.slug);
 
 const baseCents = tuning.cents.slice();
@@ -537,8 +537,8 @@ function thirdRows() {
 }
 
 function describeFifth(off) {
-    if (isZero(off)) return 'pure';
-    const dir = off < 0 ? 'narrow' : 'wide';
+    if (isZero(off)) return t('pureLabel');
+    const dir = off < 0 ? t('narrow') : t('wide');
     const named = COMMA_NAMES.find(c => Math.abs(Math.abs(off) - c[0]) < EXACT);
     return named ? named[1] + ' ' + dir : dir;
 }
@@ -555,26 +555,22 @@ function renderSheet() {
     const acc = s => withAccidentals(s, 'sheet-acc');
     let h = localizedTuningData.about.map(p => '<p class="sheet-p">' + acc(p) + '</p>').join('');
 
-    h += '<h3 class="sheet-h">The chain of fifths</h3>';
-    h += sheetTable(['Fifth', 'Off pure', 'Tempered by', 'Beats/s'], fifthRows().map(r =>
+    h += '<h3 class="sheet-h">' + t('chainOfFifths') + '</h3>';
+    h += sheetTable([t('fifth'), t('offPure'), t('temperedBy'), t('beatsPerSecond')], fifthRows().map(r =>
         '<div class="sheet-row' + (r.closing ? ' closing' : '') + '">' +
         '<span>' + acc(r.name) + '</span>' +
         '<span class="num">' + (isZero(r.off) ? '—' : signed(r.off) + '¢') + '</span>' +
         '<span class="tag">' + describeFifth(r.off) + '</span>' +
         '<span class="num">' + (r.beats < 0.05 ? '—' : r.beats.toFixed(1)) + '</span></div>'));
-    h += '<p class="sheet-note">The last row closes the circle and is whatever the other eleven leave behind. ' +
-         'Beat rates are for the lower note taken in the octave F3–E4, at the reference A set below; ' +
-         'a pure fifth does not beat. Taken as a fourth instead, an octave higher, the same fifth ' +
-         'beats exactly twice as fast.</p>';
+    h += '<p class="sheet-note">' + t('chainNote') + '</p>';
 
-    h += '<h3 class="sheet-h">Major thirds</h3>';
-    h += sheetTable(['Third', 'Off pure', '', ''], thirdRows().map(r =>
+    h += '<h3 class="sheet-h">' + t('majorThirds') + '</h3>';
+    h += sheetTable([t('third'), t('offPure'), '', ''], thirdRows().map(r =>
         '<div class="sheet-row"><span>' + acc(r.name) + '</span>' +
         '<span class="num">' + (isZero(r.off) ? '—' : signed(r.off) + '¢') + '</span>' +
-        '<span class="tag">' + (isZero(r.off) ? 'pure' : '') + '</span>' +
+        '<span class="tag">' + (isZero(r.off) ? t('pureLabel') : '') + '</span>' +
         '<span></span></div>'));
-    h += '<p class="sheet-note">Roots run in chain order, from the flat end of the chain to the sharp end. ' +
-         'A pure major third is 386.31¢.</p>';
+    h += '<p class="sheet-note">' + t('thirdNote') + '</p>';
 
     if (localizedTuningData.source) h += '<p class="sheet-src">' + localizedTuningData.source + '</p>';
     els.sheetBody.innerHTML = h;
@@ -612,6 +608,14 @@ if (tuning.about) els.infoBtn.addEventListener('click', openSheet);
 else els.infoBtn.hidden = true;
 els.sheetClose.addEventListener('click', closeSheet);
 els.sheet.addEventListener('click', e => { if (e.target === els.sheet) closeSheet(); });
+document.addEventListener('app-language-changed', () => {
+    localizedTuningData = localizedTuning(tuning);
+    document.title = localizedTuningData.name + ' — Historical Tunings';
+    els.name.innerHTML = withAccidentals(localizedTuningData.name);
+    els.blurb.textContent = localizedTuningData.note;
+    els.sheetTitle.innerHTML = withAccidentals(localizedTuningData.name);
+    if (!els.sheet.hidden) renderSheet();
+});
 
 // The tuner stays in the tab order behind the backdrop, so Tab is confined to
 // the sheet's own two stops rather than walking into controls nobody can see

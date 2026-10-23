@@ -87,7 +87,7 @@ const SIXTH_COMMA       = everyFifth(SYNTONIC_COMMA / 6);
 // Twelve of these close seven octaves exactly, which is the whole of equal temperament
 const EQUAL_COMMA = everyFifth(PYTHAGOREAN_COMMA / 12);
 
-// Violin open strings are pure fifths, so the two share one frozen table
+// The pure-fifths reference table is shared by the relevant tunings
 const PURE_CHAIN = Object.freeze(fromFifths(everyFifth(0)));
 
 const TUNINGS = [
@@ -99,16 +99,6 @@ const TUNINGS = [
             'The price of pure fifths is paid by the thirds: every usable major third is a syntonic comma wide. The four that measure almost pure (C♯–F, F♯–B♭, G♯–C, B–E♭) are diminished fourths, spelt wrong for the key they would serve.'
         ],
         source: '12-tone Pythagorean scale — pyth_12.scl, Scala archive',
-        cents: PURE_CHAIN
-    },
-    {
-        slug: 'violin', name: 'Violin Family', group: 'Ancient',
-        note: 'Open strings tuned in pure fifths — Pythagorean in practice.',
-        about: [
-            'The open strings of the violin family are tuned in pure fifths — G–D–A–E on the violin, C–G–D–A on the viola and cello — so the table is the Pythagorean chain.',
-            'Only the open strings are fixed. Everything stopped by the fingers is placed by ear against what the rest of the ensemble is doing, so the table tells you where to set the strings, not where to put your hand.'
-        ],
-        source: 'Pure fifths; the table is the 12-tone Pythagorean scale — pyth_12.scl, Scala archive',
         cents: PURE_CHAIN
     },
     {

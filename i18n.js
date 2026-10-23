@@ -13,7 +13,12 @@
             play: 'Play', stop: 'Stop', pure: 'pure', upperHarmonic: 'Upper harmonic', lowerHarmonic: 'Lower harmonic',
             soundUpper: 'Sound the upper note as', justIntonation: 'Just intonation',
             root: 'Root', compareAgainst: 'Compare against', tapRoot: 'Tap a key to set the root',
-            licences: 'Licences'
+            licences: 'Licences', chainOfFifths: 'The chain of fifths', fifth: 'Fifth',
+            offPure: 'Off pure', temperedBy: 'Tempered by', beatsPerSecond: 'Beats/s',
+            chainNote: 'The last row closes the circle and is whatever the other eleven leave behind. Beat rates are for the lower note taken in the octave F3–E4, at the reference A set below; a pure fifth does not beat. Taken as a fourth instead, an octave higher, the same fifth beats exactly twice as fast.',
+            majorThirds: 'Major thirds', third: 'Third',
+            thirdNote: 'Roots run in chain order, from the flat end of the chain to the sharp end. A pure major third is 386.31¢.',
+            pureLabel: 'pure', narrow: 'narrow', wide: 'wide'
         },
         sl: {
             all: 'Vse', about: 'O aplikaciji', settings: 'Nastavitve', explore: 'Razišči',
@@ -26,7 +31,12 @@
             play: 'Predvajaj', stop: 'Ustavi', pure: 'čisto', upperHarmonic: 'Zgornji harmonik', lowerHarmonic: 'Spodnji harmonik',
             soundUpper: 'Predvajaj zgornji ton kot', justIntonation: 'Čista intonacija',
             root: 'Osnovni ton', compareAgainst: 'Primerjaj z', tapRoot: 'Dotakni se tipke za nastavitev osnovnega tona',
-            licences: 'Licence'
+            licences: 'Licence', chainOfFifths: 'Veriga kvint', fifth: 'Kvinta',
+            offPure: 'Odklon od čiste', temperedBy: 'Temperirana za', beatsPerSecond: 'Utripov/s',
+            chainNote: 'Zadnja vrstica sklene krog in je rezultat tega, kar za seboj pustijo preostalih enajst kvint. Frekvence utripanja veljajo za spodnji ton v oktavi F3–E4 pri spodaj nastavljenem referenčnem A; čista kvinta ne utripa. Če jo vzamemo kot kvarto oktavo višje, ista kvinta utripa natanko dvakrat hitreje.',
+            majorThirds: 'Velike terce', third: 'Terca',
+            thirdNote: 'Osnovni toni tečejo po verigi od nižjega do višjega konca. Čista velika terca meri 386,31 centa.',
+            pureLabel: 'čisto', narrow: 'ozko', wide: 'široko'
         },
         de: {
             all: 'Alle', about: 'Über die App', settings: 'Einstellungen', explore: 'Entdecken',
@@ -39,7 +49,12 @@
             play: 'Abspielen', stop: 'Stopp', pure: 'rein', upperHarmonic: 'Oberer Oberton', lowerHarmonic: 'Unterer Oberton',
             soundUpper: 'Oberen Ton spielen als', justIntonation: 'Reine Intonation',
             root: 'Grundton', compareAgainst: 'Vergleichen mit', tapRoot: 'Taste antippen, um den Grundton festzulegen',
-            licences: 'Lizenzen'
+            licences: 'Lizenzen', chainOfFifths: 'Quintenkette', fifth: 'Quinte',
+            offPure: 'Abweichung von rein', temperedBy: 'Temperiert um', beatsPerSecond: 'Schläge/s',
+            chainNote: 'Die letzte Zeile schließt den Kreis und ist das, was die übrigen elf zurücklassen. Die Schlagfrequenzen gelten für den tieferen Ton in der Oktave F3–E4 beim unten eingestellten Referenz-A; eine reine Quinte schlägt nicht. Als Quarte eine Oktave höher schlägt dieselbe Quinte genau doppelt so schnell.',
+            majorThirds: 'Große Terzen', third: 'Terz',
+            thirdNote: 'Die Grundtöne folgen der Kette vom tiefen zum hohen Ende. Eine reine große Terz misst 386,31¢.',
+            pureLabel: 'rein', narrow: 'eng', wide: 'weit'
         },
         es: {
             all: 'Todo', about: 'Acerca de', settings: 'Ajustes', explore: 'Explorar',
@@ -52,7 +67,12 @@
             play: 'Reproducir', stop: 'Detener', pure: 'pura', upperHarmonic: 'Armónico superior', lowerHarmonic: 'Armónico inferior',
             soundUpper: 'Reproducir la nota superior como', justIntonation: 'Entonación justa',
             root: 'Fundamental', compareAgainst: 'Comparar con', tapRoot: 'Toca una tecla para establecer la fundamental',
-            licences: 'Licencias'
+            licences: 'Licencias', chainOfFifths: 'Cadena de quintas', fifth: 'Quinta',
+            offPure: 'Desviación de justa', temperedBy: 'Temperada por', beatsPerSecond: 'Pulsos/s',
+            chainNote: 'La última fila cierra el círculo y es lo que dejan las otras once. Las frecuencias de batimiento corresponden a la nota inferior en la octava F3–E4, con el La de referencia indicado abajo; una quinta justa no produce batimientos. Como cuarta una octava más alta, la misma quinta late exactamente al doble de velocidad.',
+            majorThirds: 'Terceras mayores', third: 'Tercera',
+            thirdNote: 'Las raíces siguen la cadena desde el extremo bemolado hasta el extremo sostenido. Una tercera mayor justa mide 386,31¢.',
+            pureLabel: 'justa', narrow: 'estrecha', wide: 'ancha'
         }
     };
 
@@ -65,15 +85,6 @@
             about: [
                 'Enajst čistih kvint je zloženih v verigo od E♭ do G♯. Ker nič ni temperirano, dvanajsta kvinta prevzame ves pitagorejski komat — volčji interval 23,5 centa med G♯ in E♭.',
                 'Cena čistih kvint so terce: vsaka uporabna velika terca je za sintonski komat preširoka. Štiri skoraj čiste terce (C♯–F, F♯–B♭, G♯–C, B–E♭) so zmanjšane kvarte, napačno zapisane za tonaliteto, ki bi ji služile.'
-            ]
-        },
-        violin: {
-            name: 'Družina godal', group: 'Stare',
-            source: 'Čiste kvinte; tabela je 12-tonska pitagorejska lestvica — pyth_12.scl, arhiv Scala',
-            note: 'Prazne strune so uglašene v čistih kvintah — pitagorejsko v praksi.',
-            about: [
-                'Prazne strune družine godal so uglašene v čistih kvintah — G–D–A–E pri violini ter C–G–D–A pri violi in violončelu — zato je tabela pitagorejska veriga.',
-                'Določene so samo prazne strune. Vse, kar pritisnemo s prsti, uglašujemo po posluhu glede na preostanek ansambla, zato tabela pove, kam nastaviti strune, ne pa kam položiti roko.'
             ]
         },
         meantone27: {
@@ -185,11 +196,6 @@
             'Elf reine Quinten sind von E♭ bis G♯ zu einer Kette gestapelt. Nichts ist temperiert, daher trägt die zwölfte Quinte das gesamte pythagoreische Komma — die 23,5-Cent-Wolfsquinte zwischen G♯ und E♭.',
             'Der Preis der reinen Quinten wird bei den Terzen bezahlt: Jede verwendbare große Terz ist um ein syntonisches Komma zu weit. Die vier fast reinen Terzen (C♯–F, F♯–B♭, G♯–C, B–E♭) sind verminderte Quarten, die für ihre Tonart falsch geschrieben sind.',
             '12-tönige pythagoreische Tonleiter — pyth_12.scl, Scala-Archiv'),
-        violin: tuningText('Streichinstrumente', 'Antike',
-            'Leere Saiten in reinen Quinten — praktisch pythagoreisch gestimmt.',
-            'Die leeren Saiten der Streichinstrumente sind in reinen Quinten gestimmt — G–D–A–E bei der Violine, C–G–D–A bei Bratsche und Cello — daher ist die Tabelle die pythagoreische Kette.',
-            'Nur die leeren Saiten sind festgelegt. Alles, was mit den Fingern gegriffen wird, wird nach Gehör zum übrigen Ensemble gesetzt; die Tabelle zeigt also, wohin man die Saiten stimmt, nicht wohin man die Hand setzt.',
-            'Reine Quinten; die Tabelle ist die 12-tönige pythagoreische Tonleiter — pyth_12.scl, Scala-Archiv'),
         meantone27: tuningText('Mitteltönig 2/7', 'Mitteltönig',
             'Stark verengte Quinten; große und kleine Terzen sind gleich weit abweichend.',
             'Jede Quinte gibt zwei Siebtel des syntonischen Kommas auf. Dadurch ist keine Quinte und keine Terz rein: große und kleine Terzen sind jeweils um 3,1 Cent zu eng. Das einzige reine Intervall ist der chromatische Halbton 25/24.',
@@ -252,11 +258,6 @@
             'Once quintas justas se apilan desde E♭ hasta G♯. Nada está temperado, así que la duodécima quinta contiene toda la coma pitagórica: la quinta de lobo de 23,5 cents entre G♯ y E♭.',
             'El precio de las quintas justas se paga en las terceras: cada tercera mayor utilizable es una coma sintónica demasiado ancha. Las cuatro casi justas son cuartas disminuidas escritas de forma incorrecta para su tonalidad.',
             'Escala pitagórica de 12 tonos — pyth_12.scl, archivo Scala'),
-        violin: tuningText('Familia de cuerdas', 'Antiguas',
-            'Cuerdas al aire afinadas en quintas justas: pitagórica en la práctica.',
-            'Las cuerdas al aire de la familia de cuerdas se afinan en quintas justas: G–D–A–E en el violín y C–G–D–A en la viola y el violonchelo; por eso la tabla es la cadena pitagórica.',
-            'Solo las cuerdas al aire están fijadas. Todo lo que se pisa con los dedos se coloca de oído según el resto del conjunto; la tabla indica cómo afinar las cuerdas, no dónde poner la mano.',
-            'Quintas justas; la tabla es la escala pitagórica de 12 tonos — pyth_12.scl, archivo Scala'),
         meantone27: tuningText('Mesotónica 2/7', 'Mesotónicas',
             'Quintas muy estrechas, con terceras mayores y menores igualmente desviadas.',
             'Cada quinta cede dos séptimos de la coma sintónica, por lo que ninguna quinta ni tercera es justa. Las terceras mayores y menores quedan 3,1 cents estrechas. El único intervalo justo es el semitono cromático 25/24.',
@@ -316,7 +317,7 @@
     const localizedTunings = { sl: slTunings, de: deTunings, es: esTunings };
     const supported = Object.keys(translations);
     const stored = localStorage.getItem('historical-tunings:language');
-    const language = supported.indexOf(stored) >= 0 ? stored : 'en';
+    let language = supported.indexOf(stored) >= 0 ? stored : 'en';
     const tr = key => (translations[language][key] || translations.en[key] || key);
     window.localizedTuning = function (tuning) {
         const translated = localizedTunings[language] && localizedTunings[language][tuning.slug];
@@ -342,12 +343,15 @@
         document.querySelectorAll('[data-language-option]').forEach(el => {
             el.textContent = languageNames[el.dataset.languageOption];
         });
+        document.dispatchEvent(new CustomEvent('app-language-changed'));
     }
 
     window.setAppLanguage = function (next) {
         if (supported.indexOf(next) < 0) return;
+        if (supported.indexOf(next) < 0 || next === language) return;
+        language = next;
         localStorage.setItem('historical-tunings:language', next);
-        location.reload();
+        applyLanguage();
     };
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyLanguage);

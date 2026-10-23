@@ -58,27 +58,32 @@
     }
 
     const list = document.getElementById('list');
-    let lastGroup = null;
-    TUNINGS.forEach(t => {
-        const localized = localizedTuning(t);
-        if (localized.group !== lastGroup) {
-            lastGroup = localized.group;
-            const h = document.createElement('div');
-            h.className = 'group-label';
-            h.textContent = localized.group;
-            list.appendChild(h);
-            const wrap = document.createElement('div');
-            wrap.className = 'tuning-list';
-            wrap.id = 'g-' + localized.group;
-            list.appendChild(wrap);
-        }
-        const a = document.createElement('a');
-        a.className = 'tuning-link';
-        a.href = 'tuner.html?t=' + t.slug;
-        a.innerHTML = '<span class="t-name">' + withAccidentals(localized.name) + '</span>' +
-                      '<span class="t-note">' + localized.note + '</span>';
-        document.getElementById('g-' + localized.group).appendChild(a);
-    });
+    function renderList() {
+        list.innerHTML = '';
+        let lastGroup = null;
+        TUNINGS.forEach(t => {
+            const localized = localizedTuning(t);
+            if (localized.group !== lastGroup) {
+                lastGroup = localized.group;
+                const h = document.createElement('div');
+                h.className = 'group-label';
+                h.textContent = localized.group;
+                list.appendChild(h);
+                const wrap = document.createElement('div');
+                wrap.className = 'tuning-list';
+                wrap.id = 'g-' + localized.group;
+                list.appendChild(wrap);
+            }
+            const a = document.createElement('a');
+            a.className = 'tuning-link';
+            a.href = 'tuner.html?t=' + t.slug;
+            a.innerHTML = '<span class="t-name">' + withAccidentals(localized.name) + '</span>' +
+                          '<span class="t-note">' + localized.note + '</span>';
+            document.getElementById('g-' + localized.group).appendChild(a);
+        });
+    }
+    renderList();
+    document.addEventListener('app-language-changed', renderList);
 })();
 
 if ('serviceWorker' in navigator) {
