@@ -201,7 +201,7 @@ function makeKey(pc, octave, x, w, cls) {
     b.style.left = x + 'px';
     b.style.width = w + 'px';
     b.dataset.id = pc + ':' + octave;
-    b.innerHTML = '<span class="key-label">' + withAccidentals(NOTE_NAMES[pc], 'kb-acc') +
+    b.innerHTML = '<span class="key-label">' + withAccidentals(formatNoteName(NOTE_NAMES[pc]), 'kb-acc') +
                   (cls === 'wkey' && pc === 0 ? '<span class="key-oct">' + octave + '</span>' : '') +
                   '</span>';
     // Taken through the root it is leaving, so moving along the keyboard follows the
@@ -357,7 +357,7 @@ function render() {
     const near = nearestKey(targetAbs);
     const nearFreq = keyFreq(near.pc, near.octave);
 
-    els.rootHzLabel.innerHTML = t('root') + ' ' + withAccidentals(NOTE_NAMES[rootPc], 'sheet-acc') + rootOctave + ' (Hz)';
+    els.rootHzLabel.innerHTML = t('root') + ' ' + withAccidentals(formatNoteName(NOTE_NAMES[rootPc]), 'sheet-acc') + rootOctave + ' (Hz)';
 
     els.figure.innerHTML = '<span class="r-num">' + rn + '</span>' +
                            '<span class="r-bar">/</span>' +
@@ -379,7 +379,7 @@ function render() {
     // have coincided: the root's rn-th against the upper's rd-th.
     els.voicePureVal.textContent = rn + '/' + rd;
     els.voiceKeySys.textContent = localizedTuning(tuning).name;
-    els.voiceKeyVal.innerHTML = withAccidentals(NOTE_NAMES[near.pc], 'accidental') + near.octave;
+    els.voiceKeyVal.innerHTML = withAccidentals(formatNoteName(NOTE_NAMES[near.pc]), 'accidental') + near.octave;
     // Signed from the key, not from the ratio, so a wide temperament reads positive
     // the way the tuner's own tables report it
     els.voiceKeyOff.textContent = exact
@@ -437,6 +437,10 @@ function renderTuningOptions() {
 renderTuningOptions();
 document.addEventListener('app-language-changed', () => {
     renderTuningOptions();
+    render();
+});
+document.addEventListener('note-naming-changed', () => {
+    buildKeyboard();
     render();
 });
 

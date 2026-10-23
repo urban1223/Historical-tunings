@@ -98,8 +98,7 @@ function renderNote(name) {
         els.note.innerHTML = '<span class="note-idle"></span>';
         return;
     }
-    els.note.innerHTML = '<span class="note-letter">' + name[0] + '</span>' +
-                         withAccidentals(name.slice(1));
+    els.note.innerHTML = withAccidentals(formatNoteName(name));
 }
 
 // ---------------------------------------------------------------- enharmonics
@@ -113,7 +112,7 @@ function renderEnharmonics() {
             const b = document.createElement('button');
             b.type = 'button';
             b.className = 'enh-btn' + (oi === 0 ? ' active' : '');
-            b.innerHTML = withAccidentals(opt.label, 'accidental');
+            b.innerHTML = withAccidentals(formatNoteName(opt.label), 'accidental');
             b.addEventListener('click', () => {
                 noteNames[group.idx] = opt.label;
                 baseCents[group.idx] = opt.cents;
@@ -163,7 +162,7 @@ function makeKey(pc, octave, x, w, cls) {
     b.style.left = x + 'px';
     b.style.width = w + 'px';
     b.dataset.id = id;
-    b.innerHTML = '<span class="key-label">' + withAccidentals(noteNames[pc], 'kb-acc') +
+    b.innerHTML = '<span class="key-label">' + withAccidentals(formatNoteName(noteNames[pc]), 'kb-acc') +
                   (cls === 'wkey' && pc === 0 ? '<span class="key-oct">' + octave + '</span>' : '') +
                   '</span>';
     b.addEventListener('click', () => toggleDrone(pc, octave));
@@ -552,7 +551,8 @@ function sheetTable(head, rows) {
 }
 
 function renderSheet() {
-    const acc = s => withAccidentals(s, 'sheet-acc');
+    const acc = s => withAccidentals(s.replace(/(^|[–-])([A-G][♯♭]?)/g,
+        (_, separator, note) => separator + formatNoteName(note)), 'sheet-acc');
     let h = localizedTuningData.about.map(p => '<p class="sheet-p">' + acc(p) + '</p>').join('');
 
     h += '<h3 class="sheet-h">' + t('chainOfFifths') + '</h3>';
@@ -614,6 +614,12 @@ document.addEventListener('app-language-changed', () => {
     els.name.innerHTML = withAccidentals(localizedTuningData.name);
     els.blurb.textContent = localizedTuningData.note;
     els.sheetTitle.innerHTML = withAccidentals(localizedTuningData.name);
+    if (!els.sheet.hidden) renderSheet();
+});
+document.addEventListener('note-naming-changed', () => {
+    renderKeyboard();
+    renderEnharmonics();
+    renderNote(displayedName);
     if (!els.sheet.hidden) renderSheet();
 });
 
