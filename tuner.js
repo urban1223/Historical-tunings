@@ -38,7 +38,7 @@ const els = {
     sheetClose: document.getElementById('sheet-close')
 };
 
-document.title = localizedTuningData.name + ' — Historical Tunings';
+document.title = localizedTuningData.name + ' — ' + APP_NAME;
 els.name.innerHTML = withAccidentals(localizedTuningData.name);
 els.blurb.textContent = localizedTuningData.note;
 
@@ -610,7 +610,7 @@ els.sheetClose.addEventListener('click', closeSheet);
 els.sheet.addEventListener('click', e => { if (e.target === els.sheet) closeSheet(); });
 document.addEventListener('app-language-changed', () => {
     localizedTuningData = localizedTuning(tuning);
-    document.title = localizedTuningData.name + ' — Historical Tunings';
+    document.title = localizedTuningData.name + ' — ' + APP_NAME;
     els.name.innerHTML = withAccidentals(localizedTuningData.name);
     els.blurb.textContent = localizedTuningData.note;
     els.sheetTitle.innerHTML = withAccidentals(localizedTuningData.name);

@@ -512,6 +512,12 @@ body::after {
 body.home .stage { justify-content: flex-start; }
 
 .masthead { text-align: center; padding: 18px 0 6px; }
+.academy-logo {
+    display: block;
+    width: min(240px, 78%);
+    height: auto;
+    margin: 0 auto 18px;
+}
 .masthead h1 {
     font-size: 28px;
     font-weight: 800;

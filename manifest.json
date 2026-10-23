@@ -1,7 +1,7 @@
 {
   "name": "Historical Tunings",
   "short_name": "Tunings",
-  "description": "A tuner for historical temperaments, from the Association Nova Akademija.",
+  "description": "A tuner for historical temperaments.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

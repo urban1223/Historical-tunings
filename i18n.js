@@ -3,6 +3,7 @@
 
     const translations = {
         en: {
+            appName: 'Historical Tunings', association: 'Društvo Nova Akademija',
             all: 'All', about: 'About', settings: 'Settings', explore: 'Explore',
             pureRatios: 'Pure Ratios',
             pureRatiosNote: 'Just intonation as ratios rather than twelve fixed notes — build one, hear it, and see where it falls between the keys.',
@@ -22,8 +23,13 @@
             syntonicTwoSevenths: '2/7 syntonic comma', syntonicQuarter: '1/4 syntonic comma', syntonicSixth: '1/6 syntonic comma',
             pythagorean: 'Pythagorean comma', pythagoreanQuarter: '1/4 Pythagorean comma', pythagoreanSixth: '1/6 Pythagorean comma',
             pythagoreanTwelfth: '1/12 Pythagorean comma', syntonic: 'syntonic comma'
+            ,ratioExact: 'The ratio is exact — that is what just intonation means. The key is wherever the tuning you pick puts its nearest note, and every tuning in the list is a fixed set of twelve, which is why none of them can hold more than a handful of these ratios.'
+            ,ratioRoot: 'Only the root has a frequency of its own — type one, or tap a key to move it. Every other key is then calculated from the root by the tuning you picked: take the cents that tuning gives the key, subtract the cents it gives the root, and add 1200 for each octave between them. So an E above a 415 Hz A is 702¢ and 622.5 Hz in Pythagorean, but 696.6¢ and 620.6 Hz in Meantone 1/4 — same root, same key, different tuning.'
+            ,ratioKeyboard: 'That is why the keyboard is a ruler here and not an instrument, and why tapping a key sets the root instead of sounding it. The ratio never moves when you change tuning; the keys move under it. Where the ratio lands past the last drawn key the marker is pinned to the edge and dimmed.'
+            ,ratioIntervals: 'Interval names follow the list of intervals compiled by the Huygens-Fokker Foundation, which covers every ratio these two grids can reach.'
         },
         sl: {
+            appName: 'Zgodovinske uglasitve', association: 'Društvo Nova Akademija',
             all: 'Vse', about: 'O aplikaciji', settings: 'Nastavitve', explore: 'Razišči',
             pureRatios: 'Čista razmerja',
             pureRatiosNote: 'Čista intonacija kot razmerja namesto dvanajstih fiksnih tonov — sestavi razmerje, ga poslušaj in preveri njegov položaj med tipkami.',
@@ -43,8 +49,13 @@
             syntonicTwoSevenths: '2/7 sintonične kome', syntonicQuarter: '1/4 sintonične kome', syntonicSixth: '1/6 sintonične kome',
             pythagorean: 'pitagorejska koma', pythagoreanQuarter: '1/4 pitagorejske kome', pythagoreanSixth: '1/6 pitagorejske kome',
             pythagoreanTwelfth: '1/12 pitagorejske kome', syntonic: 'sintonična koma'
+            ,ratioExact: 'Razmerje je natančno — to pomeni čista intonacija. Tipka je tam, kamor jo postavi najbližji ton izbrane uglasitve, vsaka uglasitev na seznamu pa je določena z dvanajstimi toni, zato nobena ne more natančno vsebovati več kot nekaj teh razmerij.'
+            ,ratioRoot: 'Samo osnovni ton ima svojo frekvenco — vpiši jo ali se dotakni tipke, da jo premakneš. Vsaka druga tipka se nato izračuna iz osnovnega tona in izbrane uglasitve: centom, ki jih uglasitev določi tipki, odštejemo cente osnovnega tona in prištejemo 1200 za vsako vmesno oktavo. E nad A pri 415 Hz ima tako v pitagorejski uglasitvi 702 centa in 622,5 Hz, v srednjetonski 1/4 pa 696,6 centa in 620,6 Hz — isti osnovni ton, ista tipka, drugačna uglasitev.'
+            ,ratioKeyboard: 'Zato je klaviatura tukaj ravnilo in ne inštrument, dotik tipke pa nastavi osnovni ton, namesto da bi ga zaigral. Razmerje se ob menjavi uglasitve ne premakne; pod njim se premaknejo tipke. Če razmerje pade za zadnjo narisano tipko, je oznaka pripeta na rob in zatemnjena.'
+            ,ratioIntervals: 'Imena intervalov sledijo seznamu, ki ga je pripravila ustanova Huygens-Fokker in zajema vsa razmerja, ki jih lahko ustvarita ti dve mreži.'
         },
         de: {
+            appName: 'Historische Stimmungen', association: 'Društvo Nova Akademija',
             all: 'Alle', about: 'Über die App', settings: 'Einstellungen', explore: 'Entdecken',
             pureRatios: 'Reine Verhältnisse',
             pureRatiosNote: 'Reine Intonation als Verhältnisse statt zwölf fester Töne — erstelle ein Verhältnis, höre es und sieh seine Position zwischen den Tasten.',
@@ -64,8 +75,13 @@
             syntonicTwoSevenths: '2/7 syntonisches Komma', syntonicQuarter: '1/4 syntonisches Komma', syntonicSixth: '1/6 syntonisches Komma',
             pythagorean: 'pythagoreisches Komma', pythagoreanQuarter: '1/4 pythagoreisches Komma', pythagoreanSixth: '1/6 pythagoreisches Komma',
             pythagoreanTwelfth: '1/12 pythagoreisches Komma', syntonic: 'syntonisches Komma'
+            ,ratioExact: 'Das Verhältnis ist exakt — genau das bedeutet reine Intonation. Die Taste liegt dort, wo die gewählte Stimmung ihren nächsten Ton setzt. Jede Stimmung in der Liste besteht aus zwölf festen Tönen und kann daher nur wenige dieser Verhältnisse exakt enthalten.'
+            ,ratioRoot: 'Nur der Grundton hat eine eigene Frequenz — gib sie ein oder tippe eine Taste an, um sie zu verschieben. Jede andere Taste wird aus dem Grundton und der gewählten Stimmung berechnet: Ziehe die Centwerte des Grundtons vom Wert der Taste ab und addiere für jede Oktave 1200. Ein E über einem A mit 415 Hz hat in Pythagoreisch 702¢ und 622,5 Hz, in Mitteltönig 1/4 jedoch 696,6¢ und 620,6 Hz — gleicher Grundton, gleiche Taste, andere Stimmung.'
+            ,ratioKeyboard: 'Darum ist die Tastatur hier ein Lineal und kein Instrument. Durch Antippen einer Taste wird der Grundton gesetzt, statt ihn zu spielen. Das Verhältnis bewegt sich beim Wechsel der Stimmung nicht; die Tasten bewegen sich darunter. Liegt das Verhältnis hinter der letzten gezeichneten Taste, wird die Markierung am Rand angeheftet und abgedunkelt.'
+            ,ratioIntervals: 'Die Intervallnamen folgen der vom Huygens-Fokker-Institut zusammengestellten Liste, die jedes Verhältnis dieser beiden Raster abdeckt.'
         },
         es: {
+            appName: 'Afinaciones históricas', association: 'Društvo Nova Akademija',
             all: 'Todo', about: 'Acerca de', settings: 'Ajustes', explore: 'Explorar',
             pureRatios: 'Relaciones puras',
             pureRatiosNote: 'Entonación justa como relaciones en lugar de doce notas fijas: crea una, escúchala y comprueba dónde queda entre las teclas.',
@@ -85,6 +101,10 @@
             syntonicTwoSevenths: '2/7 de coma sintónica', syntonicQuarter: '1/4 de coma sintónica', syntonicSixth: '1/6 de coma sintónica',
             pythagorean: 'coma pitagórica', pythagoreanQuarter: '1/4 de coma pitagórica', pythagoreanSixth: '1/6 de coma pitagórica',
             pythagoreanTwelfth: '1/12 de coma pitagórica', syntonic: 'coma sintónica'
+            ,ratioExact: 'La relación es exacta: eso es lo que significa la entonación justa. La tecla queda donde la afinación elegida coloca su nota más cercana. Cada afinación de la lista tiene doce notas fijas, por lo que solo puede contener exactamente unas pocas de estas relaciones.'
+            ,ratioRoot: 'Solo la fundamental tiene una frecuencia propia: escríbela o toca una tecla para moverla. Las demás teclas se calculan desde la fundamental según la afinación elegida: resta los cents de la fundamental a los cents de la tecla y suma 1200 por cada octava intermedia. Un Mi sobre un La de 415 Hz mide 702¢ y 622,5 Hz en la afinación pitagórica, pero 696,6¢ y 620,6 Hz en la mesotónica 1/4: misma fundamental, misma tecla, distinta afinación.'
+            ,ratioKeyboard: 'Por eso el teclado es aquí una regla y no un instrumento. Tocar una tecla establece la fundamental en vez de hacerla sonar. La relación no se mueve al cambiar de afinación; las teclas se mueven debajo. Si la relación cae más allá de la última tecla dibujada, el marcador queda fijado al borde y atenuado.'
+            ,ratioIntervals: 'Los nombres de los intervalos siguen la lista compilada por la Fundación Huygens-Fokker, que cubre todas las relaciones que pueden alcanzar estas dos cuadrículas.'
         }
     };
 
@@ -331,6 +351,7 @@
     const stored = localStorage.getItem('historical-tunings:language');
     let language = supported.indexOf(stored) >= 0 ? stored : 'en';
     const tr = key => (translations[language][key] || translations.en[key] || key);
+    window.APP_NAME = translations[language].appName;
     window.localizedTuning = function (tuning) {
         const translated = localizedTunings[language] && localizedTunings[language][tuning.slug];
         if (!translated) return tuning;
@@ -343,6 +364,10 @@
 
     function applyLanguage() {
         document.documentElement.lang = language;
+        document.title = document.title.replace(
+            /Historical Tunings|Zgodovinske uglasitve|Historische Stimmungen|Afinaciones históricas/g,
+            translations[language].appName
+        );
         document.querySelectorAll('[data-i18n]').forEach(el => {
             el.textContent = tr(el.dataset.i18n);
         });
