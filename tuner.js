@@ -488,15 +488,15 @@ const EXACT = 0.0005;
 // Named amounts a fifth may be tempered by, so the table can say how the
 // temperament was built and not only by how much.
 const COMMA_NAMES = [
-    [2 * SYNTONIC_COMMA / 7, '2/7 synt. comma'],
-    [SYNTONIC_COMMA / 4,    '1/4 synt. comma'],
-    [SYNTONIC_COMMA / 6,    '1/6 synt. comma'],
-    [PYTHAGOREAN_COMMA / 4, '1/4 Pyth. comma'],
-    [PYTHAGOREAN_COMMA / 6, '1/6 Pyth. comma'],
-    [PYTHAGOREAN_COMMA / 12, '1/12 Pyth. comma'],
+    [2 * SYNTONIC_COMMA / 7, 'syntonicTwoSevenths'],
+    [SYNTONIC_COMMA / 4,    'syntonicQuarter'],
+    [SYNTONIC_COMMA / 6,    'syntonicSixth'],
+    [PYTHAGOREAN_COMMA / 4, 'pythagoreanQuarter'],
+    [PYTHAGOREAN_COMMA / 6, 'pythagoreanSixth'],
+    [PYTHAGOREAN_COMMA / 12, 'pythagoreanTwelfth'],
     [SCHISMA,               'schisma'],
-    [SYNTONIC_COMMA,        'synt. comma'],
-    [PYTHAGOREAN_COMMA,     'Pyth. comma']
+    [SYNTONIC_COMMA,        'syntonic'],
+    [PYTHAGOREAN_COMMA,     'pythagorean']
 ];
 
 // The octave a harpsichord tuner lays the bearings in, holding every beat rate
@@ -540,7 +540,7 @@ function describeFifth(off) {
     if (isZero(off)) return t('pureLabel');
     const dir = off < 0 ? t('narrow') : t('wide');
     const named = COMMA_NAMES.find(c => Math.abs(Math.abs(off) - c[0]) < EXACT);
-    return named ? named[1] + ' ' + dir : dir;
+    return named ? (named[1] === 'schisma' ? 'schisma' : t(named[1])) + ' ' + dir : dir;
 }
 
 const signed = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1);

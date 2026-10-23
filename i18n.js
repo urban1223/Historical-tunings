@@ -18,7 +18,10 @@
             chainNote: 'The last row closes the circle and is whatever the other eleven leave behind. Beat rates are for the lower note taken in the octave F3–E4, at the reference A set below; a pure fifth does not beat. Taken as a fourth instead, an octave higher, the same fifth beats exactly twice as fast.',
             majorThirds: 'Major thirds', third: 'Third',
             thirdNote: 'Roots run in chain order, from the flat end of the chain to the sharp end. A pure major third is 386.31¢.',
-            pureLabel: 'pure', narrow: 'narrow', wide: 'wide'
+            pureLabel: 'pure', narrow: 'narrow', wide: 'wide',
+            syntonicTwoSevenths: '2/7 syntonic comma', syntonicQuarter: '1/4 syntonic comma', syntonicSixth: '1/6 syntonic comma',
+            pythagorean: 'Pythagorean comma', pythagoreanQuarter: '1/4 Pythagorean comma', pythagoreanSixth: '1/6 Pythagorean comma',
+            pythagoreanTwelfth: '1/12 Pythagorean comma', syntonic: 'syntonic comma'
         },
         sl: {
             all: 'Vse', about: 'O aplikaciji', settings: 'Nastavitve', explore: 'Razišči',
@@ -36,7 +39,10 @@
             chainNote: 'Zadnja vrstica sklene krog in je rezultat tega, kar za seboj pustijo preostalih enajst kvint. Frekvence utripanja veljajo za spodnji ton v oktavi F3–E4 pri spodaj nastavljenem referenčnem A; čista kvinta ne utripa. Če jo vzamemo kot kvarto oktavo višje, ista kvinta utripa natanko dvakrat hitreje.',
             majorThirds: 'Velike terce', third: 'Terca',
             thirdNote: 'Osnovni toni tečejo po verigi od nižjega do višjega konca. Čista velika terca meri 386,31 centa.',
-            pureLabel: 'čisto', narrow: 'ozko', wide: 'široko'
+            pureLabel: 'čisto', narrow: 'ozko', wide: 'široko',
+            syntonicTwoSevenths: '2/7 sintonične kome', syntonicQuarter: '1/4 sintonične kome', syntonicSixth: '1/6 sintonične kome',
+            pythagorean: 'pitagorejska koma', pythagoreanQuarter: '1/4 pitagorejske kome', pythagoreanSixth: '1/6 pitagorejske kome',
+            pythagoreanTwelfth: '1/12 pitagorejske kome', syntonic: 'sintonična koma'
         },
         de: {
             all: 'Alle', about: 'Über die App', settings: 'Einstellungen', explore: 'Entdecken',
@@ -54,7 +60,10 @@
             chainNote: 'Die letzte Zeile schließt den Kreis und ist das, was die übrigen elf zurücklassen. Die Schlagfrequenzen gelten für den tieferen Ton in der Oktave F3–E4 beim unten eingestellten Referenz-A; eine reine Quinte schlägt nicht. Als Quarte eine Oktave höher schlägt dieselbe Quinte genau doppelt so schnell.',
             majorThirds: 'Große Terzen', third: 'Terz',
             thirdNote: 'Die Grundtöne folgen der Kette vom tiefen zum hohen Ende. Eine reine große Terz misst 386,31¢.',
-            pureLabel: 'rein', narrow: 'eng', wide: 'weit'
+            pureLabel: 'rein', narrow: 'eng', wide: 'weit',
+            syntonicTwoSevenths: '2/7 syntonisches Komma', syntonicQuarter: '1/4 syntonisches Komma', syntonicSixth: '1/6 syntonisches Komma',
+            pythagorean: 'pythagoreisches Komma', pythagoreanQuarter: '1/4 pythagoreisches Komma', pythagoreanSixth: '1/6 pythagoreisches Komma',
+            pythagoreanTwelfth: '1/12 pythagoreisches Komma', syntonic: 'syntonisches Komma'
         },
         es: {
             all: 'Todo', about: 'Acerca de', settings: 'Ajustes', explore: 'Explorar',
@@ -72,7 +81,10 @@
             chainNote: 'La última fila cierra el círculo y es lo que dejan las otras once. Las frecuencias de batimiento corresponden a la nota inferior en la octava F3–E4, con el La de referencia indicado abajo; una quinta justa no produce batimientos. Como cuarta una octava más alta, la misma quinta late exactamente al doble de velocidad.',
             majorThirds: 'Terceras mayores', third: 'Tercera',
             thirdNote: 'Las raíces siguen la cadena desde el extremo bemolado hasta el extremo sostenido. Una tercera mayor justa mide 386,31¢.',
-            pureLabel: 'justa', narrow: 'estrecha', wide: 'ancha'
+            pureLabel: 'justa', narrow: 'estrecha', wide: 'ancha',
+            syntonicTwoSevenths: '2/7 de coma sintónica', syntonicQuarter: '1/4 de coma sintónica', syntonicSixth: '1/6 de coma sintónica',
+            pythagorean: 'coma pitagórica', pythagoreanQuarter: '1/4 de coma pitagórica', pythagoreanSixth: '1/6 de coma pitagórica',
+            pythagoreanTwelfth: '1/12 de coma pitagórica', syntonic: 'coma sintónica'
         }
     };
 
@@ -83,34 +95,34 @@
             source: '12-tonska pitagorejska lestvica — pyth_12.scl, arhiv Scala',
             note: 'Same čiste kvinte, vendar za ceno zelo širokih terc.',
             about: [
-                'Enajst čistih kvint je zloženih v verigo od E♭ do G♯. Ker nič ni temperirano, dvanajsta kvinta prevzame ves pitagorejski komat — volčji interval 23,5 centa med G♯ in E♭.',
-                'Cena čistih kvint so terce: vsaka uporabna velika terca je za sintonski komat preširoka. Štiri skoraj čiste terce (C♯–F, F♯–B♭, G♯–C, B–E♭) so zmanjšane kvarte, napačno zapisane za tonaliteto, ki bi ji služile.'
+                'Enajst čistih kvint je zloženih v verigo od E♭ do G♯. Ker nič ni temperirano, dvanajsta kvinta prevzame vso pitagorejsko komo — volčji interval 23,5 centa med G♯ in E♭.',
+                'Cena čistih kvint so terce: vsaka uporabna velika terca je za sintonično komo preširoka. Štiri skoraj čiste terce (C♯–F, F♯–B♭, G♯–C, B–E♭) so zmanjšane kvarte, napačno zapisane za tonaliteto, ki bi ji služile.'
             ]
         },
         meantone27: {
             name: 'Srednjetonska 2/7', group: 'Srednjetonske',
-            source: 'Srednjetonska uglasitev z 2/7 komata, Zarlino (1558) — mean2sev.scl, arhiv Scala',
+            source: 'Srednjetonska uglasitev z 2/7 kome, Zarlino (1558) — mean2sev.scl, arhiv Scala',
             note: 'Kvinte so močno znižane, velike in male terce pa enako odmaknjene.',
             about: [
-                'Vsaka kvinta se odpove dvema sedminama sintonskega komata — več kot pri četrtinskem komatu, zato nobena kvinta in nobena terca ni čista. Dobimo simetrijo: velike terce so za 3,1 centa preozke in male terce za 3,1 centa preozke, obe so napačni za natanko enako mero. Edini čisti interval je kromatični polton, C–C♯ in njegovi štirje sorodniki, natanko 25/24.',
+                'Vsaka kvinta se odpove dvema sedminama sintonične kome — več kot pri četrtinski komi, zato nobena kvinta in nobena terca ni čista. Dobimo simetrijo: velike terce so za 3,1 centa preozke in male terce za 3,1 centa preozke, obe so napačni za natanko enako mero. Edini čisti interval je kromatični polton, C–C♯ in njegovi štirje sorodniki, natanko 25/24.',
                 'Enajst tako znižanih kvint pusti dvanajsti zelo veliko. G♯–E♭ je široka 44,1 centa, največji volčji interval tukaj, in z njim tudi štiri terce, ki ga prečkajo.'
             ]
         },
         meantone4: {
             name: 'Srednjetonska 1/4', group: 'Srednjetonske',
-            source: 'Srednjetonska uglasitev z 1/4 komata, Pietro Aaron (1523) — meanquar.scl, arhiv Scala',
-            note: 'Kvinte so znižane za četrtino komata, velike terce pa so čiste.',
+            source: 'Srednjetonska uglasitev z 1/4 kome, Pietro Aaron (1523) — meanquar.scl, arhiv Scala',
+            note: 'Kvinte so znižane za četrtino kome, velike terce pa so čiste.',
             about: [
-                'Vsaka kvinta je znižana za četrtino sintonskega komata — natanko toliko, da štiri zložene kvinte tvorijo čisto veliko terco. Osem od dvanajstih terc je čistih.',
+                'Vsaka kvinta je znižana za četrtino sintonične kome — natanko toliko, da štiri zložene kvinte tvorijo čisto veliko terco. Osem od dvanajstih terc je čistih.',
                 'Veriga se mora nekje skleniti. G♯–E♭ je široka 35,7 centa, klasični volčji interval, in štiri terce, ki ga prečkajo, niso uporabne.'
             ]
         },
         meantone6: {
             name: 'Srednjetonska 1/6', group: 'Srednjetonske',
-            source: 'Srednjetonska uglasitev z 1/6 komata, Salinas — meansixth.scl, arhiv Scala',
+            source: 'Srednjetonska uglasitev z 1/6 kome, Salinas — meansixth.scl, arhiv Scala',
             note: 'Blažja srednjetonska uglasitev; terce so rahlo široke, kvinte pa manj znižane.',
             about: [
-                'Zgradba je enaka kot pri četrtinskem komatu, vendar se vsaka kvinta odpove le šestini sintonskega komata. Terce so za 7,2 centa preširoke, kvinte pa so precej bližje čistim.',
+                'Zgradba je enaka kot pri četrtinski komi, vendar se vsaka kvinta odpove le šestini sintonične kome. Terce so za 7,2 centa preširoke, kvinte pa so precej bližje čistim.',
                 'V zameno se volčji interval zmanjša s 35,7 na 16 centov, zato so oddaljene tonalitete spet uporabne.'
             ]
         },
@@ -119,8 +131,8 @@
             source: 'Orgelska uglasitev F. Couperina (1690), po C. di Veroliju — couperin_org.scl, arhiv Scala',
             note: 'Nepravilna francoska uglasitev, blizu četrtinski srednjetonski.',
             about: [
-                'Nepravilna francoska uglasitev. Devet zaporednih kvint od B♭ do C♯ je znižanih za natanko četrtino komata, zato so terce na F, C, G, D, A in B♭ čiste, tako kot pri srednjetonski uglasitvi.',
-                'Preostali kvinti sta namesto znižanja razširjeni — E♭–B♭ za 7,8 centa in C♯–G♯ za četrtino komata — zato je 24,9 centa presežka razdeljenega med tri intervale. Najširša, zaključna G♯–E♭ pri 11,8 centa, je še vedno groba, vendar ima le tretjino volčjega intervala srednjetonske uglasitve.'
+                'Nepravilna francoska uglasitev. Devet zaporednih kvint od B♭ do C♯ je znižanih za natanko četrtino kome, zato so terce na F, C, G, D, A in B♭ čiste, tako kot pri srednjetonski uglasitvi.',
+                'Preostali kvinti sta namesto znižanja razširjeni — E♭–B♭ za 7,8 centa in C♯–G♯ za četrtino kome — zato je 24,9 centa presežka razdeljenega med tri intervale. Najširša, zaključna G♯–E♭ pri 11,8 centa, je še vedno groba, vendar ima le tretjino volčjega intervala srednjetonske uglasitve.'
             ]
         },
         rameau: {
@@ -128,7 +140,7 @@
             source: 'Standardna francoska uglasitev, Rameaujeva različica (1726), C. di Veroli — rameau-french.scl, arhiv Scala',
             note: 'Rameaujeva nepravilna uglasitev, ki daje prednost običajnim tonalitetam.',
             about: [
-                'Šest kvint od F do B je znižanih za četrtino komata, s čimer so običajne tonalitete srednjetonske, terce na F, C in G pa čiste. B♭–F in B–F♯ ostaneta čisti.',
+                'Šest kvint od F do B je znižanih za četrtino kome, s čimer so običajne tonalitete srednjetonske, terce na F, C in G pa čiste. B♭–F in B–F♯ ostaneta čisti.',
                 'Presežek 8,8 centa, ki ga ustvarja šest znižanj, je razdeljen med štiri razširjene kvinte, ne pa odložen na eno samo. Zato ni volčjega intervala: E♭–B♭ in F♯–C♯ dobita po 1,5 centa, C♯–G♯ in G♯–E♭ pa po 2,9 centa.'
             ]
         },
@@ -137,7 +149,7 @@
             source: 'Standardna francoska uglasitev Rousseau-3, C. di Veroli, 2002 — rousseau3.scl, arhiv Scala',
             note: 'Francoska nepravilna uglasitev z izrazito obarvanimi oddaljenimi tonalitetami.',
             about: [
-                'Šest kvint od C do F♯ je znižanih za četrtino komata, zato so terce na C, G in D čiste. F–C, F♯–C♯ in C♯–G♯ ostanejo čiste kvinte.',
+                'Šest kvint od C do F♯ je znižanih za četrtino kome, zato so terce na C, G in D čiste. F–C, F♯–C♯ in C♯–G♯ ostanejo čiste kvinte.',
                 'Tri kvinte sklenejo krog tako, da so razširjene: E♭–B♭ in G♯–E♭ na koncih verige za 3,5 centa, B♭–F pa za 1,8 centa. To terce na C♯, F♯ in G♯ potisne čez pitagorejsko mejo.'
             ]
         },
@@ -146,8 +158,8 @@
             source: 'Kirnberger III, pismo Forkelu (1779) — kirnberger.scl, arhiv Scala',
             note: 'Čista terca v osnovni tonaliteti; vseh 24 tonalitet je uporabnih.',
             about: [
-                'Štiri kvinte C–G–D–A–E so znižane za četrtino sintonskega komata, zato je C–E natanko čista. Šest od preostalih sedmih kvint v verigi je čistih.',
-                'Takšno temperiranje še ne sklene kroga povsem. F♯–C♯ prevzame shizmo — 1,95 centa, za kolikor pitagorejski komat presega sintonskega — dvanajsta kvinta pa je čista, zato nikjer ni volčjega intervala.'
+                'Štiri kvinte C–G–D–A–E so znižane za četrtino sintonične kome, zato je C–E natanko čista. Šest od preostalih sedmih kvint v verigi je čistih.',
+                'Takšno temperiranje še ne sklene kroga povsem. F♯–C♯ prevzame shizmo — 1,95 centa, za kolikor pitagorejska koma presega sintonično komo — dvanajsta kvinta pa je čista, zato nikjer ni volčjega intervala.'
             ]
         },
         werckmeister: {
@@ -155,7 +167,7 @@
             source: 'Werckmeisterjeva uglasitev III (1681) — werck3.scl, arhiv Scala',
             note: 'Klasična dobro temperirana uglasitev; vsaka tonaliteta ohrani svoj značaj.',
             about: [
-                'Štiri kvinte — C–G, G–D, D–A in B–F♯ — so vsaka znižana za četrtino pitagorejskega komata. Preostalih osem je čistih; ker štiri skupaj pokrijejo ves komat, se krog sklene brez volčjega intervala.',
+                'Štiri kvinte — C–G, G–D, D–A in B–F♯ — so vsaka znižana za četrtino pitagorejske kome. Preostalih osem je čistih; ker štiri skupaj pokrijejo vso komo, se krog sklene brez volčjega intervala.',
                 'Vsaka tonaliteta je uporabna in ima svojo barvo: C–E je široka 3,9 centa, terce v oddaljenih tonalitetah pa dosežejo vseh 21,5 centa pitagorejske terce.'
             ]
         },
@@ -164,16 +176,16 @@
             source: 'Dobro temperirana uglasitev Aron–Neidhardt z enakim utripanjem — aron-neidhardt.scl, arhiv Scala',
             note: 'Nežna dobro temperirana uglasitev, ki uravnoteži srednjetonsko in enakomerno.',
             about: [
-                'Pet kvint od C do B je temperiranih, preostalih sedem pa je čistih. Arhiv jo imenuje različica z enakim utripanjem; pet kvint je znižanih za nekoliko različne mere — 4,5, 6,1, 5,4, 5,5 in 2,0 centa — namesto za enak delež komata.',
+                'Pet kvint od C do B je temperiranih, preostalih sedem pa je čistih. Arhiv jo imenuje različica z enakim utripanjem; pet kvint je znižanih za nekoliko različne mere — 4,5, 6,1, 5,4, 5,5 in 2,0 centa — namesto za enak delež kome.',
                 'C–E je od čiste terce oddaljena le 0,04 centa, krog pa se sklene brez volčjega intervala. Blizu je Kirnbergerju III, vendar se z njim ne ujema — F♯ in B sta za shizmo nižja, G pa skoraj za cent višji.'
             ]
         },
         vallotti: {
             name: 'Vallotti', group: 'Dobro temperirane',
             source: 'Vallotti in Young, različica Vallotti, znana tudi kot Tartini–Vallotti (1754) — vallotti.scl, arhiv Scala',
-            note: 'Šest kvint je znižanih za šestino komata, preostale so čiste.',
+            note: 'Šest kvint je znižanih za šestino kome, preostale so čiste.',
             about: [
-                'Šest zaporednih kvint, F–C–G–D–A–E–B, je znižanih za šestino pitagorejskega komata. Preostalih šest je čistih; šest šestin pokrije ves komat, zato se krog sklene brez volčjega intervala.',
+                'Šest zaporednih kvint, F–C–G–D–A–E–B, je znižanih za šestino pitagorejske kome. Preostalih šest je čistih; šest šestin pokrije vso komo, zato se krog sklene brez volčjega intervala.',
                 'Terce se od središča navzven večajo v enakomernih korakih: na F, C in G so široke 5,9 centa, v najbolj oddaljenih tonalitetah pa vseh 21,5 centa pitagorejske terce.'
             ]
         },
@@ -182,7 +194,7 @@
             source: 'Dvanajst enakih delitev oktave: vsak korak je po definiciji natanko 100 centov, zato tabele ni treba prepisati.',
             note: 'Dvanajst enakih korakov — vse tonalitete so enake, nič ni čisto.',
             about: [
-                'Vsaka kvinta je znižana za dvanajstino pitagorejskega komata, natanko toliko, da se jih dvanajst sklene v sedem oktav. Veriga zato nima konca in volčjega intervala: vseh dvanajst korakov je velikih 100 centov in vsaka tonaliteta zveni enako kot druga.',
+                'Vsaka kvinta je znižana za dvanajstino pitagorejske kome, natanko toliko, da se jih dvanajst sklene v sedem oktav. Veriga zato nima konca in volčjega intervala: vseh dvanajst korakov je velikih 100 centov in vsaka tonaliteta zveni enako kot druga.',
                 'Nič ni čisto. Kvinte so le za 2 centa preozke, kar je težko slišati, velike terce pa so za 13,7 centa preširoke — boljše kot pri pitagorejski uglasitvi, slabše kot terce v osrednjih tonalitetah zgornjih srednjetonskih in dobro temperiranih uglasitev. Male terce so obratne: za 15,6 centa so preozke. Ta uglasitev je tukaj kot merilo za vse druge.'
             ]
         }
